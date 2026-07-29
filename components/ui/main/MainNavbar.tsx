@@ -1,7 +1,7 @@
 "use client"
 import { useSelector } from "@/app/context/ViewSelectorContext";
 import { cn } from "@/lib/utils";
-import { CircleQuestionMark, IdCard, LaptopMinimalCheck, MessageSquareOff, ReceiptTurkishLira, SquareUserRound, Star, User } from "lucide-react";
+import { CircleQuestionMark, IdCard, LaptopMinimalCheck, MessageSquareOff, ReceiptTurkishLira, SquareUserRound, Star, User, UserKey } from "lucide-react";
 import Link from "next/link";
 
 
@@ -27,10 +27,16 @@ export default function MainNavbar() {
                     ))}
                 </div>
                 {navItems.map((item, idx) => (
-                    <Link href="#">{item.icon}</Link>
+                    <Link key={idx} href="#">{item.icon}</Link>
                 ))}
 
-                <div className="bg-black/20 border border-neutral-800 p-2 text-white">Export Code</div>
+
+                <div className="relative flex justify-center items-center gap-2 bg-black/20 border border-neutral-800 p-2 text-white">
+                    <UserKey size={16} strokeWidth={2} />
+                    Log in
+                    <span className="absolute inset-0 w-full h-full bg-none hover:backdrop-blur-xs transition-all duration-300 ease-in-out"></span>
+                </div>
+
             </div>
 
         </nav>
@@ -39,10 +45,6 @@ export default function MainNavbar() {
 
 
 const navItems = [
-    {
-        lable: "Portfolio",
-        icon: <SquareUserRound strokeWidth={1} size={20} />
-    },
     {
         lable: "FAQs",
         icon: <CircleQuestionMark strokeWidth={1} size={20} />

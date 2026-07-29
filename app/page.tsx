@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useSelector } from "./context/ViewSelectorContext";
 import HeroDemo from "@/components/Demo/HeroDemo";
 import CardDemo from "@/components/Demo/CardDemo";
+import { ServiceCard } from "@/components/Demo/ServiceCard";
 
 export default function Home() {
 
@@ -89,7 +90,7 @@ export default function Home() {
   if (selected === "Card") {
     return (
       <div className="flex justify-center items-center h-screen w-screen bg-neutral-900">
-        <div className="flex justify-center items-center p-2 rounded-2xl  bg-none "
+        <div className="flex justify-center items-center p-2 rounded-2xl  bg-none border border-neutral-800 "
           style={{
             backgroundImage: `radial-gradient(circle at 0.5px  0.5px, rgba(${r},${g},${b}, ${config.opacity}) ${config.scale}px, transparent 0)`,
             backgroundSize: `${config.spacing}px ${config.spacing}px`,
@@ -99,6 +100,7 @@ export default function Home() {
           }}
         >
           <CardDemo />
+
         </div>
       </div>
     )

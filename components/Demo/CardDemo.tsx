@@ -13,19 +13,10 @@ import {
 export default function CardDemo() {
 
     return (
-        < Card className="flex justify-center items-center w-80 h-110 bg-neutral-800" >
-            <CardHeader className="w-full h-full">
-                <CardTitle>Card Title</CardTitle>
-                <CardDescription>Card Description</CardDescription>
-                <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-                <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-                <p>Card Footer</p>
-            </CardFooter>
-        </Card >
+        <div className="flex justify-center items-center h-[400px] w-[300px] bg-neutral-950 rounded-2xl border border-neutral-900">
+            <h1 className="text-2xl text-neutral-400">Your Content Here</h1>
+
+        </div>
 
     )
 }

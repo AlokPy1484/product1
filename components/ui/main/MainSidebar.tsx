@@ -6,6 +6,7 @@ import { Slider } from "../slider";
 import { useState } from "react";
 import { motion } from "motion/react"
 import { useGridConfig } from "@/app/context/GridConfigContext";
+import { cn } from "@/lib/utils";
 
 
 
@@ -19,17 +20,66 @@ export default function MainSidebar() {
 
     const { config, updateConfig } = useGridConfig()
 
+    const hexToRgb = (hex) => {
+        // Remove the #
+        hex = hex.replace("#", "");
+
+        // Handle shorthand hex (#fff)
+        if (hex.length === 3) {
+            hex = hex
+                .split("")
+                .map((char) => char + char)
+                .join("");
+        }
+
+        const bigint = parseInt(hex, 16);
+
+        return {
+            r: (bigint >> 16) & 255,
+            g: (bigint >> 8) & 255,
+            b: bigint & 255,
+        };
+    };
+
+
+    const dotColour = config.primaryColour
+    const { r, g, b } = hexToRgb(dotColour)
+
+
+
+
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(JSON.stringify(style, null, 2))
+            alert("Copied!")
+        }
+        catch (err) {
+            console.log(err)
+        }
+    }
+
+
+    const style = {
+        backgroundImage: `radial-gradient(circle at 0.5px  0.5px, rgba(${r}, ${g}, ${b}, ${config.opacity}) ${config.scale}px, transparent 0)`,
+        backgroundSize: `${config.spacing}px ${config.spacing}px`,
+        backgroundRepeat: "repeat",
+        opacity: `1`,
+        backgroundColor: config.backgroundColour
+    }
+
+
 
     return (
         <Sidebar className=" border-black text-neutral-100 w-auto top-[50px] h-[calc(100svh-var(--navbar-height))]" collapsible="icon">
             <SidebarHeader className="flex flex-col justify-center items-start bg-neutral-900/99 p-4">
-                <a className="flex justify-center items-center gap-2 text-3xl font-thin" onClick={() => { setOpen(prev => !prev) }} ><SidebarClose strokeWidth={1} size={28} />{open && <a> Control Pannel</a>}</a>
+                <a className="flex justify-center items-center gap-2 text-3xl font-thin" onClick={() => { setOpen(prev => !prev) }} ><SidebarClose strokeWidth={1} size={28} />{open && <p> Control Pannel</p>}</a>
                 {/* {open && <a className="text-sm font-light uppercase text-neutral-500">Edit Pattern Parameters</a>} */}
 
 
             </SidebarHeader>
             <SidebarContent className="flex flex-col justify-center items-center gap-4 bg-neutral-900/99 border-r-black  w-full overflow-scroll px-2">
-                <SidebarGroup className="flex flex-col justify-start items-start gap-4">
+                <SidebarGroup className={cn(open ? "items-start" : "items-center", "flex flex-col justify-start gap-4")}>
 
 
                     <div className="flex justify-start items-center text-xs gap-2 uppercase">
@@ -39,7 +89,7 @@ export default function MainSidebar() {
                     {geometryControls.map((item, idx) => (
 
 
-                        <div className="flex flex-col w-full py-2">
+                        <div key={idx} className="flex flex-col w-full py-2">
                             {open ? (
                                 <motion.div
 
@@ -74,34 +124,54 @@ export default function MainSidebar() {
 
 
                 </SidebarGroup>
-                <SidebarGroup className="flex flex-col justify-start items-start gap-4 w-full">
+                <SidebarGroup className={cn(open ? "items-start" : "items-center", "flex flex-col justify-start gap-4")}>
 
                     <div className="flex justify-start items-center text-xs gap-2 uppercase">
                         <Palette strokeWidth={1} />
                         {open && <a>Colors</a>}
                     </div>
                     <div className="flex flex-col justify-start items-center gap-4 w-full text-sm font-light">
-                        <div className="flex justify-between items-center p-2 border border-neutral-800 w-full">
-                            <a className="upeercase">Primary</a>
-                            <div className="flex justify-center items-center gap-2">
-                                {config.primaryColour}
-                                <input
-                                    type="color"
-                                    value={config.primaryColour}
-                                    onChange={(e) => updateConfig({ primaryColour: e.target.value })}
-                                />                            </div>
-                        </div>
-                        <div className="flex justify-between items-center p-2 border border-neutral-800 w-full">
-                            <a className="upeercase">Background</a>
-                            <div className="flex justify-center items-center gap-2">
-                                {config.backgroundColour}
-                                <input
-                                    type="color"
-                                    value={config.backgroundColour}
-                                    onChange={(e) => updateConfig({ backgroundColour: e.target.value })}
-                                />
+
+                        {open ?
+
+                            <div className="flex justify-between items-center p-2 border border-neutral-800 w-full">
+                                <a className="upeercase">Primary</a>
+                                <div className="flex justify-center items-center gap-2">
+                                    {config.primaryColour}
+                                    <input
+                                        type="color"
+                                        value={config.primaryColour}
+                                        onChange={(e) => updateConfig({ primaryColour: e.target.value })}
+                                    />
+                                </div>
                             </div>
-                        </div>
+                            :
+                            <input
+                                type="color"
+                                value={config.primaryColour}
+                                onChange={(e) => updateConfig({ primaryColour: e.target.value })}
+                                className="w-5 h-5 "
+                            />
+                        }
+                        {open ?
+                            <div className="flex justify-between items-center p-2 border border-neutral-800 w-full">
+                                <a className="upeercase">Background</a>
+                                <div className="flex justify-center items-center gap-2">
+                                    {config.backgroundColour}
+                                    <input
+                                        type="color"
+                                        value={config.backgroundColour}
+                                        onChange={(e) => updateConfig({ backgroundColour: e.target.value })}
+                                    />
+                                </div>
+                            </div> :
+                            <input
+                                type="color"
+                                value={config.backgroundColour}
+                                onChange={(e) => updateConfig({ backgroundColour: e.target.value })}
+                                className="w-5 h-5"
+                            />
+                        }
                         {/* <div className="flex flex-col justify-center items-start w-full gap-4">
                             <div className="flex justify-between items-center w-full text-sm">
                                 <a>Opacity</a>
@@ -124,24 +194,24 @@ export default function MainSidebar() {
                 </SidebarGroup>
 
             </SidebarContent>
-            <SidebarFooter className="flex flex-col justify-center items-start bg-neutral-900/99 p-4 border-t-black">
-                <div className="w-full border border-neutral-800 flex justify-center gap-4 items-center p-4">
+            <SidebarFooter className="flex flex-col justify-center items-start bg-neutral-900/99 border-t-black">
+                <div onClick={handleCopy} className={cn(open ? "p-4" : "p-0", "w-full border border-neutral-800 flex justify-center gap-4 items-center")}>
                     <CodeXml strokeWidth={1} />
-                    Get Code
+                    {open && <a> Get Code</a>}
                 </div>
 
-                {open &&
-                    <div className="flex justify-between items-center w-full text-xs font-thin text-neutral-400 p-2">
-                        <div className="flex justify-start items-center gap-2">
-                            <CircleQuestionMark size={18} strokeWidth={1} />
-                            Help
-                        </div>
-                        <div className="flex justify-start items-center gap-2">
-                            <MessageSquareText size={18} strokeWidth={1} />
-                            Feedback
-                        </div>
 
-                    </div>}
+                <div className={cn(open ? "flex-row" : "flex-col", "flex justify-between items-center w-full text-xs font-thin text-neutral-400 p-2 gap-4")}>
+                    <div className="flex justify-start items-center gap-2">
+                        <CircleQuestionMark size={18} strokeWidth={1} />
+                        {open && <a> Help</a>}
+                    </div>
+                    <div className="flex justify-start items-center gap-2">
+                        <MessageSquareText size={18} strokeWidth={1} />
+                        {open && <a> Feedback</a>}
+                    </div>
+
+                </div>
 
 
             </SidebarFooter>
@@ -211,3 +281,6 @@ const geometryControls = [
     },
 
 ]
+
+
+
