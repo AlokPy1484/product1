@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { useSelector } from "./context/ViewSelectorContext";
 import HeroDemo from "@/components/Demo/HeroDemo";
 import CardDemo from "@/components/Demo/CardDemo";
-import { ServiceCard } from "@/components/Demo/ServiceCard";
 
 export default function Home() {
 
