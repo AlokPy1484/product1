@@ -94,7 +94,7 @@ export default function Home() {
             backgroundImage: `radial-gradient(circle at 0.5px  0.5px, rgba(${r},${g},${b}, ${config.opacity}) ${config.scale}px, transparent 0)`,
             backgroundSize: `${config.spacing}px ${config.spacing}px`,
             backgroundRepeat: "repeat",
-            opacity: `1`,
+            opacity: `1 `,
             backgroundColor: config.backgroundColour
           }}
         >
