@@ -89,16 +89,20 @@ export default function Home() {
   if (selected === "Card") {
     return (
       <div className="flex justify-center items-center h-screen w-screen bg-neutral-900">
-        <div className="flex justify-center items-center p-2 rounded-2xl  bg-none border border-neutral-800 "
-          style={{
-            backgroundImage: `radial-gradient(circle at 0.5px  0.5px, rgba(${r},${g},${b}, ${config.opacity}) ${config.scale}px, transparent 0)`,
-            backgroundSize: `${config.spacing}px ${config.spacing}px`,
-            backgroundRepeat: "repeat",
-            opacity: `1 `,
-            backgroundColor: config.backgroundColour
-          }}
+        <div className="flex justify-center items-center  rounded-2xl  bg-none border border-neutral-800 "
+
         >
-          <CardDemo />
+          <div className="flex justify-center items-center p-2 h-[400px] w-[300px] bg- rounded-2xl border border-neutral-900"
+            style={{
+              backgroundImage: `radial-gradient(circle at 0.5px  0.5px, rgba(${r},${g},${b}, ${config.opacity}) ${config.scale}px, transparent 0)`,
+              backgroundSize: `${config.spacing}px ${config.spacing}px`,
+              backgroundRepeat: "repeat",
+              opacity: `1 `,
+              backgroundColor: config.backgroundColour
+            }}>
+            <h1 className="flex justify-center items-center text-2xl text-neutral-400 bg-neutral-950 w-full h-full rounded-2xl border border-neutral-900">Your Content Here</h1>
+
+          </div>
 
         </div>
       </div>
