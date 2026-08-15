@@ -6,6 +6,7 @@ import MainSidebar from "@/components/ui/main/MainSidebar";
 import MainNavbar from "@/components/ui/main/MainNavbar";
 import { GridConfigProvider } from "./context/GridConfigContext";
 import { SelectorProvider } from "./context/ViewSelectorContext";
+import { Toaster } from "@/components/ui/toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
             <SidebarProvider>
               <MainSidebar />
               {children}
+              <Toaster />
             </SidebarProvider>
           </GridConfigProvider>
         </SelectorProvider>

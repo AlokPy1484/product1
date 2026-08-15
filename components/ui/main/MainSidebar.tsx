@@ -7,6 +7,7 @@ import { useState } from "react";
 import { motion } from "motion/react"
 import { useGridConfig } from "@/app/context/GridConfigContext";
 import { cn } from "@/lib/utils";
+import { toast } from "../toast";
 
 
 
@@ -52,7 +53,6 @@ export default function MainSidebar() {
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(JSON.stringify(style, null, 2))
-            alert("Copied!")
         }
         catch (err) {
             console.log(err)
@@ -66,6 +66,14 @@ export default function MainSidebar() {
         backgroundRepeat: "repeat",
         opacity: `1`,
         backgroundColor: config.backgroundColour
+    }
+
+
+    function showToast() {
+        const id = toast.add({
+            title: "Style copied",
+            description: "Your css pattern has been copied"
+        })
     }
 
 
@@ -195,9 +203,9 @@ export default function MainSidebar() {
 
             </SidebarContent>
             <SidebarFooter className="flex flex-col justify-center items-start bg-neutral-900/99 border-t-black">
-                <div onClick={handleCopy} className={cn(open ? "p-4" : "p-0", "w-full border border-neutral-800 flex justify-center gap-4 items-center")}>
+                <div onClick={handleCopy} className={cn(open ? "p-4" : "p-0", "w-full border border-neutral-800 flex justify-center gap-4 items-center cursor-pointer")}>
                     <CodeXml strokeWidth={1} />
-                    {open && <a> Get Code</a>}
+                    {open && <a onClick={showToast}> Get Code</a>}
                 </div>
 
 

@@ -18,6 +18,7 @@ export default function MainNavbar() {
         <nav className="fixed inset-0 flex justify-between items-center bg-neutral-900 w-full border-b border-neutral-800 h-[50px] z-100 px-4 text-white">
             <div className="text-2xl font-thin">Pattern Generator</div>
             <div className="flex justify-start items-center gap-4">
+
                 <div className="flex justify-center items-center bg-neutral-800 gap-2 p-1 border border-neutral-950">
                     {viewSelectorItems.map((item, idx) => (
                         <div key={idx} className={cn(selected === item.lable && "bg-black", " p-1 cursor-pointer rounded-xs")}
