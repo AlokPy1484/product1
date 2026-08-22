@@ -24,11 +24,11 @@ export interface PatternConfig {
 export const DEFAULT_PATTERN_CONFIG: PatternConfig = {
 
     pattern: "dots",
-    scale: 0.5,
+    scale: 1,
     spacing: 10,
     opacity: 0.2,
     primaryRotation: 135,
     secondaryRotation: 45,
-    primaryColour: '#ffffff',
-    backgroundColour: '#000000'
+    primaryColour: '#000000',
+    backgroundColour: '#ffffff'
 }

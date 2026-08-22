@@ -52,23 +52,51 @@ export function getPatternCSS(config: PatternConfig) {
 
         case "dots":
             return {
-                backgroundImage: `radial-gradient(circle at 0.5px  0.5px, rgba(${r},${g},${b}, ${config.opacity}) ${config.scale}px, transparent 0)`,
+                backgroundImage: `radial-gradient(
+        circle,
+        rgba(${r},${g},${b},${config.opacity}) 0,
+        rgba(${r},${g},${b},${config.opacity}) ${config.scale}px,
+        transparent ${config.scale}px
+    )`,
                 backgroundSize: `${config.spacing}px ${config.spacing}px`,
                 backgroundRepeat: "repeat",
-                opacity: `1`,
-                backgroundColor: config.backgroundColour
-
-            };
-
-        case "grid":
-            return {
-                backgroundImage: "repeating-linear-gradient(135deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 1px, transparent 1px, transparent 5px)"
+                backgroundColor: config.backgroundColour,
             };
 
         case "striped":
             return {
-                backgroundImage: "repeating-linear-gradient(135deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.05) 0.01px, transparent 0.5px, transparent 50px), repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.05) 0.01px, transparent 0.5px, transparent 50px)"
+                backgroundImage: `repeating-linear-gradient(
+        ${config.primaryRotation}deg,
+        rgba(${r},${g},${b},${config.opacity}) 0px,
+        rgba(${r},${g},${b},${config.opacity}) ${config.scale}px,
+        transparent ${config.scale}px,
+        transparent ${config.spacing}px
+    )`,
+                backgroundRepeat: "repeat",
+                backgroundColor: config.backgroundColour,
             };
+
+        case "grid":
+            return {
+                backgroundImage: `
+        repeating-linear-gradient(
+            ${config.primaryRotation}deg,
+            rgba(${r},${g},${b},${config.opacity}) 0px,
+            rgba(${r},${g},${b},${config.opacity}) ${config.scale}px,
+            transparent ${config.scale}px,
+            transparent ${config.spacing}px
+        ),
+        repeating-linear-gradient(
+            ${config.secondaryRotation}deg,
+            rgba(${r},${g},${b},${config.opacity}) 0px,
+            rgba(${r},${g},${b},${config.opacity}) ${config.scale}px,
+            transparent ${config.scale}px,
+            transparent ${config.spacing}px
+        )
+    `,
+                backgroundRepeat: "repeat",
+                backgroundColor: config.backgroundColour,
+            }
 
         default:
             return {};
