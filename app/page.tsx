@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useSelector } from "./context/ViewSelectorContext";
 import HeroDemo from "@/components/Demo/HeroDemo";
 import CardDemo from "@/components/Demo/CardDemo";
+import { getPatternCSS } from "./utils.ts/pattern-utils"
 
 export default function Home() {
 
@@ -38,8 +39,9 @@ export default function Home() {
     };
   };
 
-
+  //entry 
   const dotColour = config.primaryColour
+
   const { r, g, b } = hexToRgb(dotColour)
 
   const bgColour = config.backgroundColour
@@ -56,11 +58,7 @@ export default function Home() {
 
       <div className={cn("w-screen h-screen ")}
         style={{
-          backgroundImage: `radial-gradient(circle at 0.5px  0.5px, rgba(${r},${g},${b}, ${config.opacity}) ${config.scale}px, transparent 0)`,
-          backgroundSize: `${config.spacing}px ${config.spacing}px`,
-          backgroundRepeat: "repeat",
-          opacity: `1`,
-          backgroundColor: config.backgroundColour
+          ...getPatternCSS(config)
         }}>
         <div className="w-screen h-screen bg-re0">
 

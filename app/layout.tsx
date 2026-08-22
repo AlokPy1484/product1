@@ -4,7 +4,7 @@ import "./globals.css";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/ui/main/MainSidebar";
 import MainNavbar from "@/components/ui/main/MainNavbar";
-import { GridConfigProvider } from "./context/GridConfigContext";
+import { PatternConfigProvider } from "./context/GridConfigContext";
 import { SelectorProvider } from "./context/ViewSelectorContext";
 import { Toaster } from "@/components/ui/toast";
 
@@ -36,13 +36,13 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col pt-[--navbar-height] bg-black">
         <SelectorProvider>
           <MainNavbar />
-          <GridConfigProvider>
+          <PatternConfigProvider>
             <SidebarProvider>
               <MainSidebar />
               {children}
               <Toaster />
             </SidebarProvider>
-          </GridConfigProvider>
+          </PatternConfigProvider>
         </SelectorProvider>
       </body>
     </html>

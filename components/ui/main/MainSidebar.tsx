@@ -1,6 +1,6 @@
 "use client"
 
-import { CircleQuestionMark, CodeXml, DraftingCompass, MessageSquareText, Palette, Scale, SidebarClose } from "lucide-react";
+import { CircleQuestionMark, CodeXml, Cross, Dot, DraftingCompass, MessageSquareText, Palette, Scale, SidebarClose, Square } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, useSidebar } from "../sidebar";
 import { Slider } from "../slider";
 import { useState } from "react";
@@ -20,6 +20,8 @@ export default function MainSidebar() {
     const { open, setOpen } = useSidebar()
 
     const { config, updateConfig } = useGridConfig()
+
+
 
     const hexToRgb = (hex) => {
         // Remove the #
@@ -53,6 +55,11 @@ export default function MainSidebar() {
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(JSON.stringify(style, null, 2))
+
+            const id = toast.add({
+                title: "Style Copied",
+                description: "Your css pattern has been copied"
+            })
         }
         catch (err) {
             console.log(err)
@@ -69,12 +76,12 @@ export default function MainSidebar() {
     }
 
 
-    function showToast() {
-        const id = toast.add({
-            title: "Style copied",
-            description: "Your css pattern has been copied"
-        })
-    }
+    // function showToast() {
+    //     const id = toast.add({
+    //         title: "Style copied",
+    //         description: "Your css pattern has been copied"
+    //     })
+    // }
 
 
 
@@ -89,6 +96,15 @@ export default function MainSidebar() {
             <SidebarContent className="flex flex-col justify-center items-center gap-4 bg-neutral-900/99 border-r-black  w-full overflow-scroll px-2">
                 <SidebarGroup className={cn(open ? "items-start" : "items-center", "flex flex-col justify-start gap-4")}>
 
+                    <div className="flex justify-center items-center p-1 gap-2 bg-neutral-700 text-xs">
+                        <button className="flex justify-center items-center  bg-neutral-500 p-1 gap-1"
+                            onClick={() => updateConfig({ pattern: "dots" })}
+                        ><Dot size={10} /> Dots</button>
+                        <button className="flex justify-center items-center  bg-neutral-500 p-1 gap-1"
+                            onClick={() => updateConfig({ pattern: "striped" })}><Square size={10} /> Dots</button>
+                        <button className="flex justify-center items-center  bg-neutral-500 p-1 gap-1"
+                            onClick={() => updateConfig({ pattern: "grid" })}><Cross size={10} /> Dots</button>
+                    </div>
 
                     <div className="flex justify-start items-center text-xs gap-2 uppercase">
                         <DraftingCompass strokeWidth={1} />
@@ -205,7 +221,7 @@ export default function MainSidebar() {
             <SidebarFooter className="flex flex-col justify-center items-start bg-neutral-900/99 border-t-black">
                 <div onClick={handleCopy} className={cn(open ? "p-4" : "p-0", "w-full border border-neutral-800 flex justify-center gap-4 items-center cursor-pointer")}>
                     <CodeXml strokeWidth={1} />
-                    {open && <a onClick={showToast}> Get Code</a>}
+                    {open && <a> Get Code</a>}
                 </div>
 
 
