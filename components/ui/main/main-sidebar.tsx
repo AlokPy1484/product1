@@ -3,7 +3,7 @@
 import { RangeSlider } from "../range-slider"
 import { Button } from "../button"
 import { ButtonGroup } from "../button-group"
-import { Bookmark, ChevronDown, Diamond, Dice1, DicesIcon, Donut, LineChart, RotateCw, Undo } from "lucide-react"
+import { Bookmark, ChevronDown, Copy, Diamond, Dice1, DicesIcon, Donut, LineChart, RotateCw, Undo } from "lucide-react"
 import {
     Sidebar,
     SidebarContent,
@@ -14,6 +14,9 @@ import {
 } from "../sidebar"
 import { useState } from "react"
 import { useGridConfig } from "@/app/context/GridConfigContext"
+import { toast } from "../toast";
+import { getPatternCSS } from "@/app/utils.ts/pattern-utils"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip"
 
 
 export function MainSidebar() {
@@ -113,6 +116,45 @@ export function MainSidebar() {
 
     const { config, updateConfig, resetConfig } = useGridConfig()
 
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(JSON.stringify(getPatternCSS(config), null, 2))
+
+            const id = toast.add({
+                title: "Style Copied",
+                description: "Your css pattern has been copied"
+            })
+        }
+        catch (err) {
+            console.log(err)
+        }
+    }
+
+
+    // function showToast() {
+    //     const id = toast.add({
+    //         title: "Style copied",
+    //         description: "Your css pattern has been copied"
+    //     })
+    // }
+
+
+    function generateRandom() {
+
+        const patternType = ["dot", "striped", "grid"]
+
+        updateConfig({ 'primaryColour': `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, "0")}` },)
+        updateConfig({ 'backgroundColour': `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, "0")}` },)
+        updateConfig({ 'pattern': patternType[Math.floor(Math.random() * (2 - 0 + 1)) + 0] })
+        updateConfig({ 'scale': Math.floor(Math.random() * (3 - 0.1 + 1)) + 0.1 })
+        updateConfig({ 'spacing': Math.floor(Math.random() * (100 - 10 + 1)) + 10 })
+        updateConfig({ 'opacity': Math.floor(Math.random() * (1 - 0.1 + 1)) + 0.1 })
+        updateConfig({ 'primaryRotation': Math.floor(Math.random() * (180 + 1)) })
+        updateConfig({ 'secondaryRotation': Math.floor(Math.random() * (180 + 1)) })
+    }
+
+
+
 
 
 
@@ -133,9 +175,16 @@ export function MainSidebar() {
                     <Button className="rounded-full text-neutral-100 font- text-[16px] font-geist bg-neutral-800 border border-neutral-700 size-8"
                         onClick={() => { resetConfig() }}><RotateCw className="size-4" strokeWidth={1} /></Button>
                 </div>
-                <Button className="flex justify-center items-center rounded-4xl text-neutral-100 font- text-[16px] font-geist bg-neutral-800 border border-neutral-700 overflow-hidden">
-                    <Bookmark /> Bookmark
-                </Button>
+                <Tooltip>
+                    <TooltipTrigger render={
+                        <Button className="relative flex justify-center items-center rounded-4xl text-neutral-100 font- text-[16px] font-geist bg-neutral-800 border border-neutral-700 overflow-hidden hover:border-neutral-800 transition-color duration-300">
+                            <Bookmark /> Bookmark
+                            <span className="absolute inset-0 w-full h-full backdrop-blur-xs opacity-0 hover:opacity-100 transition-opacity duration-300"></span>
+                        </Button>} />
+                    <TooltipContent>
+                        <p>This feature is coming soon</p>
+                    </TooltipContent>
+                </Tooltip>
             </SidebarHeader>
             <SidebarContent className="min-h-0 overflow-y-scroll scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-neutral-800  flex flex-col justify-start p-4 bg-neutral-900  ">
                 <SidebarGroup className="flex gap-2 justify-center items-center">
@@ -187,15 +236,18 @@ export function MainSidebar() {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter className="flex flex-row justify-between items-center bg-neutral-900 p-4 rounded-b-4xl">
-                <Button className="rounded-4xl text-neutral-100  font-geist bg-neutral-800 border border-neutral-700 overflow-hidden">
+                <Button className="rounded-4xl text-neutral-100  font-geist bg-neutral-800 border border-neutral-700 overflow-hidden"
+                    onClick={generateRandom}>
                     <DicesIcon />
                     Randomize
                 </Button>
-
+                {/* 
                 <ButtonGroup className="rounded-4xl text-neutral-100 font- text-[16px] font-geist bg-neutral-800 border border-neutral-700 overflow-hidden">
                     <Button className="bg-neutral-800 border-r-neutral-700">Copy Pattern</Button>
                     <Button className="bg-neutral-800"><ChevronDown /></Button>
-                </ButtonGroup>
+                </ButtonGroup> */}
+                <Button className="flex justify-center items-center rounded-4xl bg-neutral-800 border-neutral-700"
+                    onClick={handleCopy}><Copy /> Copy Pattern</Button>
             </SidebarFooter>
         </Sidebar>
     )

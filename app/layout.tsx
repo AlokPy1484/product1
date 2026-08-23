@@ -3,7 +3,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
 import { MainSidebar } from "@/components/ui/main/main-sidebar";
 import MainNavbar from "@/components/ui/main/MainNavbar";
 import { PatternConfigProvider, useGridConfig } from "./context/GridConfigContext";
@@ -13,6 +12,8 @@ import { BookOpenText, HelpCircle, LayoutDashboard, Share } from "lucide-react";
 import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getPatternCSS } from "./utils.ts/pattern-utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +47,7 @@ function LayoutContent({
     >
       <SidebarProvider>
         <MainSidebar />
+        <Toaster />
 
         <div className="flex flex-col justify-center items-center h-full w-full p-4">
           <main className="flex-1 p-6">
@@ -55,12 +57,20 @@ function LayoutContent({
             </header>
             <div className="absolute top-4 right-4 flex justify-center items-center p-2 gap-4 px-4 rounded-4xl bg-neutral-900">
               <BookOpenText className="text-neutral-100" strokeWidth={1.5} size={16} />
-              <LayoutDashboard className="text-neutral-100" strokeWidth={1.5} size={16} />
-              <Avatar size="sm">
-                <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                <AvatarFallback>CN</AvatarFallback>
-                <AvatarBadge className="bg-green-600 dark:bg-green-800" />
-              </Avatar>
+              {/* <LayoutDashboard className="text-neutral-100" strokeWidth={1.5} size={16} /> */}
+              <Tooltip>
+                <TooltipTrigger render={
+                  <Avatar size="sm" className="relative ">
+                    <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarBadge className="bg-green-600 dark:bg-green-800 " />
+                    <span className="absolute -top-1 w-[130%] h-[130%] backdrop-blur-xs rounded-full opacity-0 z-100 hover:opacity-100 transition-opacity duration-300 "></span>
+                  </Avatar>
+                } />
+                <TooltipContent className="mt-3">
+                  <p className="">User Profile is coming soon</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             {/* <main className="flex-1 p-6">
               {children}
@@ -106,11 +116,14 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <PatternConfigProvider>
-        <LayoutContent>
-          {children}
-        </LayoutContent>
-      </PatternConfigProvider>
+      <TooltipProvider>
+        <PatternConfigProvider>
+          <LayoutContent>
+            {children}
+
+          </LayoutContent>
+        </PatternConfigProvider>
+      </TooltipProvider>
     </html>
   );
 
