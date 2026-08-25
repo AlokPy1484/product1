@@ -5,7 +5,7 @@ export function getPatternCSS(config: PatternConfig) {
 
 
 
-    const hexToRgb = (hex) => {
+    const hexToRgb = (hex: string) => {
         // Remove the #
         hex = hex.replace("#", "");
 

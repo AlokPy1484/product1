@@ -17,6 +17,7 @@ import { useGridConfig } from "@/app/context/GridConfigContext"
 import { toast } from "../toast";
 import { getPatternCSS } from "@/app/utils.ts/pattern-utils"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip"
+import { PatternConfig } from "@/app/types/grid-config"
 
 
 export function MainSidebar() {
@@ -25,22 +26,34 @@ export function MainSidebar() {
 
     const [patternIndex, setPatternIndex] = useState(0)
 
+    type PatternType = "dots" | "grid" | "striped"
 
-    const patternType = [
+    type PatternToggleOptionsType = {
+        id: number,
+        lable: string,
+        name: PatternType,
+        icon: React.ReactNode,
+        function: () => void
+    }
+
+    const patternToggleOptions: PatternToggleOptionsType[] = [
         {
             id: 0,
             lable: "Dots",
+            name: "dots",
             icon: <Donut />,
             function: () => updateConfig({ pattern: "dots" })
         },
         {
             id: 1,
             lable: "Striped",
+            name: "striped",
             icon: <LineChart />,
             function: () => updateConfig({ pattern: "striped" })
         },
         {
             id: 2,
+            name: "grid",
             lable: "Grid",
             icon: <Diamond />,
             function: () => updateConfig({ pattern: "grid" })
@@ -48,7 +61,23 @@ export function MainSidebar() {
     ]
 
 
-    const patternParameters = [
+    type NumericKeys<T> = {
+        [K in keyof T]: T[K] extends number ? K : never
+    }[keyof T];
+
+    type PatternParametersType = {
+        key: NumericKeys<PatternConfig>,
+        lable: string,
+        types: PatternType[],
+        component: string,
+        min?: number,
+        max?: number,
+        step?: number,
+        unit?: string,
+        function?: () => void
+    }
+
+    const patternParameters: PatternParametersType[] = [
         {
             key: "scale",
             lable: "Scale",
@@ -98,17 +127,31 @@ export function MainSidebar() {
             max: 180,
             step: 1,
             unit: "deg"
-        },
+        }
+    ]
+
+    type StringKeys<T> = {
+        [K in keyof T]: T[K] extends string ? K : never
+    }[keyof T];
+
+    type ColorParametersType = {
+        key: StringKeys<PatternConfig>,
+        lable: string,
+        types: PatternType[],
+        component: string
+    }
+
+    const colorParameters: ColorParametersType[] = [
         {
             key: "primaryColour",
             lable: "Primary Colour",
-            types: ["dot", "striped", "grid"],
+            types: ["dots", "striped", "grid"],
             component: "color"
         },
         {
             key: "backgroundColour",
             lable: "Background Colour",
-            types: ["dot", "striped", "grid"],
+            types: ["dots", "striped", "grid"],
             component: "color"
         }
     ]
@@ -141,7 +184,10 @@ export function MainSidebar() {
 
     function generateRandom() {
 
-        const patternType = ["dot", "striped", "grid"]
+
+        type PatternType = "dots" | "grid" | "striped"
+
+        const patternType: PatternType[] = ["dots", "striped", "grid"]
 
         updateConfig({ 'primaryColour': `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, "0")}` },)
         updateConfig({ 'backgroundColour': `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, "0")}` },)
@@ -165,12 +211,12 @@ export function MainSidebar() {
                 <div className="flex justify-start items-center gap-2">
                     <Button className="rounded-4xl px-3 text-neutral-900 font- text-[16px] font-geist bg-neutral-100 border border-neutral-300 hover:bg-neutral-300"
                         onClick={() => {
-                            const nextIndex = (patternIndex + 1) % patternType.length;
+                            const nextIndex = (patternIndex + 1) % patternToggleOptions.length;
                             setPatternIndex(nextIndex);
-                            updateConfig({ pattern: patternType[nextIndex].lable.toLowerCase() });
+                            updateConfig({ pattern: patternToggleOptions[nextIndex].name });
                             console.log(config)
                         }}
-                    >{patternType[patternIndex].icon}   {patternType[patternIndex].lable}
+                    >{patternToggleOptions[patternIndex].icon}   {patternToggleOptions[patternIndex].lable}
                     </Button>
                     <Button className="rounded-full text-neutral-100 font- text-[16px] font-geist bg-neutral-800 border border-neutral-700 size-8"
                         onClick={() => { resetConfig() }}><RotateCw className="size-4" strokeWidth={1} /></Button>
@@ -190,7 +236,7 @@ export function MainSidebar() {
                 <SidebarGroup className="flex gap-2 justify-center items-center">
                     {patternParameters
                         .filter((parameter) => parameter.component === "slider")
-                        .filter((parameter) => parameter.types.includes(patternType[patternIndex].lable.toLowerCase()))
+                        .filter((parameter) => parameter.types.includes(patternToggleOptions[patternIndex].name))
                         .map((parameter) => (
 
                             <div key={parameter.lable} className="flex w-full max-w-sm flex-col gap-3">
@@ -204,8 +250,7 @@ export function MainSidebar() {
 
                 </SidebarGroup>
                 <SidebarGroup className="flex flex-col gap-2 justify-center items-center">
-                    {patternParameters
-                        .filter((parameter) => parameter.component === "color")
+                    {colorParameters
                         .map((parameter) => (
 
                             <div key={parameter.lable} className="w-full">
