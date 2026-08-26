@@ -233,9 +233,17 @@ export function MainSidebar() {
                 }
             },
             {
+                element: ".pattern-presets",
+                popover: {
+                    title: "Don't wanna spend time adjusting these sliders?",
+                    description: "Don't worry! Use these presets to get started.",
+                }
+            },
+
+            {
                 element: ".pattern-copy",
                 popover: {
-                    description: "Copy the CSS style of the pattern. ready to paste in your inline style ",
+                    description: "Copy the CSS and use this pattern anywhere.",
                     side: "top",
                     align: "end"
                 }
@@ -358,7 +366,7 @@ export function MainSidebar() {
                     Presets
                 </Button> */}
                 <DropdownMenu>
-                    <ButtonGroup className="rounded-4xl text-neutral-100 font- text-[16px] font-geist bg-neutral-800 border border-neutral-700 overflow-hidden">
+                    <ButtonGroup className="pattern-presets rounded-4xl text-neutral-100 font- text-[16px] font-geist bg-neutral-800 border border-neutral-700 overflow-hidden">
                         <Button className="bg-neutral-800 border-r-neutral-700">{selectedPreset}</Button>
                         <DropdownMenuTrigger>
                             <Button className="bg-neutral-800"><ChevronDown /></Button>
