@@ -12,13 +12,15 @@ import {
     SidebarHeader,
     SidebarTrigger,
 } from "../sidebar"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useGridConfig } from "@/app/context/GridConfigContext"
 import { toast } from "../toast";
 import { getPatternCSS } from "@/app/utils.ts/pattern-utils"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip"
 import { PatternConfig } from "@/app/types/grid-config"
-
+import { driver } from "driver.js"
+import "driver.js/dist/driver.css";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../dropdown-menu"
 
 export function MainSidebar() {
 
@@ -180,28 +182,84 @@ export function MainSidebar() {
     //         description: "Your css pattern has been copied"
     //     })
     // }
+    const [selectedPreset, setSelectedPreset] = useState<string>("Presets")
+
+    function handlePresetSelector(preset: PresetsType) {
 
 
-    function generateRandom() {
+        setSelectedPreset(preset.label)
+        console.log("Preset Selected", selectedPreset)
 
 
-        type PatternType = "dots" | "grid" | "striped"
+        updateConfig({ 'primaryColour': `${preset.config.primaryColour}` },)
+        updateConfig({ 'backgroundColour': `${preset.config.backgroundColour}` },)
+        updateConfig({ 'pattern': `${preset.config.pattern}` })
+        updateConfig({ 'scale': preset.config.scale })
+        updateConfig({ 'spacing': preset.config.spacing })
+        updateConfig({ 'opacity': preset.config.opacity })
+        updateConfig({ 'primaryRotation': preset.config.primaryRotation })
+        updateConfig({ 'secondaryRotation': preset.config.secondaryRotation })
 
-        const patternType: PatternType[] = ["dots", "striped", "grid"]
-
-        updateConfig({ 'primaryColour': `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, "0")}` },)
-        updateConfig({ 'backgroundColour': `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, "0")}` },)
-        updateConfig({ 'pattern': patternType[Math.floor(Math.random() * (2 - 0 + 1)) + 0] })
-        updateConfig({ 'scale': Math.floor(Math.random() * (3 - 0.1 + 1)) + 0.1 })
-        updateConfig({ 'spacing': Math.floor(Math.random() * (100 - 10 + 1)) + 10 })
-        updateConfig({ 'opacity': Math.floor(Math.random() * (1 - 0.1 + 1)) + 0.1 })
-        updateConfig({ 'primaryRotation': Math.floor(Math.random() * (180 + 1)) })
-        updateConfig({ 'secondaryRotation': Math.floor(Math.random() * (180 + 1)) })
+        console.log(config)
     }
 
 
 
 
+
+    const driverObj = driver({
+
+        showProgress: true,
+        steps: [
+            {
+                element: ".pattern-toggle",
+                popover: {
+                    title: "Pattern Toggle",
+                    description: "Toggle between 'dots', 'striped' and 'grid/cross' pattern.",
+                }
+            },
+            {
+                element: ".pattern-control",
+                popover: {
+                    title: "Controls pannel",
+                    description: "Use these controls to adjust the pattern properties like scale, spacing, opacity and rotation",
+                }
+            },
+            {
+                element: ".pattern-color",
+                popover: {
+                    title: "Colors pannel",
+                    description: "Use these controls to adjust the pattern colors.",
+                }
+            },
+            {
+                element: ".pattern-copy",
+                popover: {
+                    description: "Copy the CSS style of the pattern. ready to paste in your inline style ",
+                    side: "top",
+                    align: "end"
+                }
+            },
+            {
+                popover: {
+                    title: "Happy creating!",
+                    description: "And that is all, go ahead and start creating patterns for your projects."
+                }
+            }
+        ]
+
+    });
+
+
+    useEffect(() => {
+
+        const hasVisited = localStorage.getItem("hasVisited")
+
+        if (!hasVisited) {
+            localStorage.setItem("hasVisited", "true")
+            driverObj.drive();
+        }
+    }, [])
 
 
 
@@ -209,17 +267,30 @@ export function MainSidebar() {
         <Sidebar className="flex flex-col  justify-between rounded  rounded-4xl " variant="floating" collapsible="icon">
             <SidebarHeader className="flex flex-row justify-between items-cente bg-neutral-900 rounded-t-4xl p-4 ">
                 <div className="flex justify-start items-center gap-2">
-                    <Button className="rounded-4xl px-3 text-neutral-900 font- text-[16px] font-geist bg-neutral-100 border border-neutral-300 hover:bg-neutral-300"
-                        onClick={() => {
-                            const nextIndex = (patternIndex + 1) % patternToggleOptions.length;
-                            setPatternIndex(nextIndex);
-                            updateConfig({ pattern: patternToggleOptions[nextIndex].name });
-                            console.log(config)
-                        }}
-                    >{patternToggleOptions[patternIndex].icon}   {patternToggleOptions[patternIndex].lable}
-                    </Button>
-                    <Button className="rounded-full text-neutral-100 font- text-[16px] font-geist bg-neutral-800 border border-neutral-700 size-8"
-                        onClick={() => { resetConfig() }}><RotateCw className="size-4" strokeWidth={1} /></Button>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <Button className="pattern-toggle rounded-4xl px-3 text-neutral-900 font- text-[16px] font-geist bg-neutral-100 border border-neutral-300 hover:bg-neutral-300"
+                                onClick={() => {
+                                    const nextIndex = (patternIndex + 1) % patternToggleOptions.length;
+                                    setPatternIndex(nextIndex);
+                                    updateConfig({ pattern: patternToggleOptions[nextIndex].name });
+                                    console.log(config)
+                                }}
+                            >{patternToggleOptions[patternIndex].icon}   {patternToggleOptions[patternIndex].lable}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            Toggle pattern type
+                        </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <Button className="rounded-full text-neutral-100 font- text-[16px] font-geist bg-neutral-800 border border-neutral-700 size-8"
+                                onClick={() => { resetConfig() }}><RotateCw className="size-4" strokeWidth={1} />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Reset the pattern</TooltipContent>
+                    </Tooltip>
                 </div>
                 <Tooltip>
                     <TooltipTrigger render={
@@ -232,8 +303,8 @@ export function MainSidebar() {
                     </TooltipContent>
                 </Tooltip>
             </SidebarHeader>
-            <SidebarContent className="min-h-0 overflow-y-scroll scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-neutral-800  flex flex-col justify-start p-4 bg-neutral-900  ">
-                <SidebarGroup className="flex gap-2 justify-center items-center">
+            <SidebarContent className=" min-h-0 overflow-y-scroll scrollbar-thin scrollbar-thumb-neutral-800 scrollbar-track-neutral-800  flex flex-col justify-start p-4 bg-neutral-900  ">
+                <SidebarGroup className="pattern-control flex gap-2 justify-center items-center">
                     {patternParameters
                         .filter((parameter) => parameter.component === "slider")
                         .filter((parameter) => parameter.types.includes(patternToggleOptions[patternIndex].name))
@@ -249,7 +320,7 @@ export function MainSidebar() {
                         ))}
 
                 </SidebarGroup>
-                <SidebarGroup className="flex flex-col gap-2 justify-center items-center">
+                <SidebarGroup className="pattern-color flex flex-col gap-2 justify-center items-center">
                     {colorParameters
                         .map((parameter) => (
 
@@ -281,20 +352,216 @@ export function MainSidebar() {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter className="flex flex-row justify-between items-center bg-neutral-900 p-4 rounded-b-4xl">
-                <Button className="rounded-4xl text-neutral-100  font-geist bg-neutral-800 border border-neutral-700 overflow-hidden"
+                {/* <Button className="rounded-4xl text-neutral-100  font-geist bg-neutral-800 border border-neutral-700 overflow-hidden"
                     onClick={generateRandom}>
                     <DicesIcon />
-                    Randomize
-                </Button>
-                {/* 
-                <ButtonGroup className="rounded-4xl text-neutral-100 font- text-[16px] font-geist bg-neutral-800 border border-neutral-700 overflow-hidden">
-                    <Button className="bg-neutral-800 border-r-neutral-700">Copy Pattern</Button>
-                    <Button className="bg-neutral-800"><ChevronDown /></Button>
-                </ButtonGroup> */}
-                <Button className="flex justify-center items-center rounded-4xl bg-neutral-800 border-neutral-700"
+                    Presets
+                </Button> */}
+                <DropdownMenu>
+                    <ButtonGroup className="rounded-4xl text-neutral-100 font- text-[16px] font-geist bg-neutral-800 border border-neutral-700 overflow-hidden">
+                        <Button className="bg-neutral-800 border-r-neutral-700">{selectedPreset}</Button>
+                        <DropdownMenuTrigger>
+                            <Button className="bg-neutral-800"><ChevronDown /></Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-neutral-800 border border-neutral-700">
+                            <DropdownMenuGroup className="text-neutral-200">
+                                {presets.map((preset, idx) => (
+                                    <DropdownMenuItem
+                                        className="transition-all duration-300 ease-in-out"
+                                        onClick={() => handlePresetSelector(preset)}>{preset.label}</DropdownMenuItem>
+                                ))}
+                            </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                    </ButtonGroup>
+                </DropdownMenu>
+                <Button className="pattern-copy flex justify-center items-center rounded-4xl bg-neutral-800 border-neutral-700"
                     onClick={handleCopy}><Copy /> Copy Pattern</Button>
             </SidebarFooter>
         </Sidebar>
     )
 }
 
+
+
+
+type PresetsType = {
+    label: string,
+    config: PatternConfig
+}
+
+
+const presets: PresetsType[] = [
+    {
+        label: "Dot Preset 1",
+        config: {
+            backgroundColour: "#f8fadb",
+            opacity: 1,
+            pattern: "dots",
+            primaryColour: "#b1dd8c",
+            primaryRotation: 135,
+            scale: 1.2,
+            secondaryRotation: 45,
+            spacing: 10,
+        },
+    },
+    {
+        label: "Striped Preset 1",
+        config: {
+            backgroundColour: "#000000",
+            opacity: 0.2,
+            pattern: "striped",
+            primaryColour: "#ffffff",
+            primaryRotation: 131,
+            scale: 0.1,
+            secondaryRotation: 45,
+            spacing: 10,
+        },
+    },
+    {
+        label: "Striped Preset 2",
+        config: {
+            backgroundColour: "#121212",
+            opacity: 0.5,
+            pattern: "striped",
+            primaryColour: "#000000",
+            primaryRotation: 131,
+            scale: 1.2,
+            secondaryRotation: 45,
+            spacing: 18,
+        },
+    },
+    {
+        label: "Grid Preset 1",
+        config: {
+            backgroundColour: "#121212",
+            opacity: 0.1,
+            pattern: "grid",
+            primaryColour: "#ffffff",
+            primaryRotation: 131,
+            scale: 0.1,
+            secondaryRotation: 41,
+            spacing: 78,
+        },
+    },
+    {
+        label: "Grid Preset 2",
+        config: {
+            backgroundColour: "#ebebeb",
+            opacity: 0.1,
+            pattern: "grid",
+            primaryColour: "#232323",
+            primaryRotation: 131,
+            scale: 0.8,
+            secondaryRotation: 41,
+            spacing: 10,
+        },
+    },
+];
+
+// const presetList = [
+//     {
+//         lable: "Dot Preset 1",
+//         config: {
+
+//         }
+
+//     }
+// ]
+
+
+
+//Dot Preset 1
+// backgroundColour: "#f8fadb"
+
+// opacity: 1
+
+// pattern: "dots"
+
+// primaryColour: "#b1dd8c"
+
+// primaryRotation: 135
+
+// scale: 1.2
+
+// secondaryRotation: 45
+
+// spacing: 10
+
+
+
+
+
+//Striped Preset 1
+// backgroundColour: "#000000"
+
+// opacity: 0.2
+
+// pattern: "striped"
+
+// primaryColour: "#ffffff"
+
+// primaryRotation: 131
+
+// scale: 0.1
+
+// secondaryRotation: 45
+
+// spacing: 10
+
+
+
+//Striped Preset 2
+// backgroundColour: "#121212"
+
+// opacity: 0.5
+
+// pattern: "striped"
+
+// primaryColour: "#000000"
+
+// primaryRotation: 131
+
+// scale: 1.2
+
+// secondaryRotation: 45
+
+// spacing: 18
+
+
+
+//Grid Preset 1
+// backgroundColour: "#121212"
+
+// opacity: 0.1
+
+// pattern: "grid"
+
+// primaryColour: "#ffffff"
+
+// primaryRotation: 131
+
+// scale: 0.1
+
+// secondaryRotation: 41
+
+// spacing: 78
+
+
+
+//Grid Preset 2
+
+// backgroundColour: "#ebebeb"
+
+// opacity: 0.1
+
+// pattern: "grid"
+
+// primaryColour: "#232323"
+
+// primaryRotation: 131
+
+// scale: 0.8
+
+// secondaryRotation: 41
+
+// spacing: 10

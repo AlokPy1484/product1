@@ -11,6 +11,8 @@ import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "@/components/u
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getPatternCSS } from "./utils.ts/pattern-utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { driver } from "driver.js";
+import { Button } from "@/components/ui/button";
 
 
 const geistSans = Geist({
@@ -38,6 +40,12 @@ function LayoutContent({
 }) {
   const { config } = useGridConfig();
 
+  const handleViewWalkthrough = () => {
+    localStorage.removeItem("hasVisited")
+    window.location.reload()
+  }
+
+
   return (
     <body
       className="min-h-full w-screen flex flex-col bg-neutral-100"
@@ -54,7 +62,10 @@ function LayoutContent({
               dotgrid.io
             </header>
             <div className="absolute top-4 right-4 flex justify-center items-center p-2 gap-4 px-4 rounded-4xl bg-neutral-900">
-              <BookOpenText className="text-neutral-100" strokeWidth={1.5} size={16} />
+              <Button className="p-0 cursor-pointer" onClick={handleViewWalkthrough}>
+                <BookOpenText className="text-neutral-100" strokeWidth={1.5} size={16} />
+              </Button>
+
               {/* <LayoutDashboard className="text-neutral-100" strokeWidth={1.5} size={16} /> */}
               <Tooltip>
                 <TooltipTrigger render={
