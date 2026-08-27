@@ -6,12 +6,11 @@ import "./globals.css";
 import { MainSidebar } from "@/components/ui/main/main-sidebar";
 import { PatternConfigProvider, useGridConfig } from "./context/GridConfigContext";
 import { Toaster } from "@/components/ui/toast";
-import { BookOpenText, HelpCircle, LayoutDashboard, Share } from "lucide-react";
+import { BookOpenText } from "lucide-react";
 import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getPatternCSS } from "./utils.ts/pattern-utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { driver } from "driver.js";
 import { Button } from "@/components/ui/button";
 
 
@@ -48,9 +47,11 @@ function LayoutContent({
 
   return (
     <body
-      className="min-h-full w-screen flex flex-col bg-neutral-100"
+      className="hidden md:flex min-h-full w-screen  flex-col bg-neutral-100"
       style={getPatternCSS(config)}
     >
+
+
       <SidebarProvider>
         <MainSidebar />
         <Toaster />
