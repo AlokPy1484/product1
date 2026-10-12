@@ -1,17 +1,15 @@
 "use client"
 
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MainSidebar } from "@/components/ui/main/main-sidebar";
-import { PatternConfigProvider, useGridConfig } from "./context/GridConfigContext";
+import { PatternConfigProvider } from "./context/GridConfigContext";
 import { Toaster } from "@/components/ui/toast";
-import { BookOpenText } from "lucide-react";
-import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { getPatternCSS } from "./utils.ts/pattern-utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
+import { PatternBackground } from "@/components/PatternBackground";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { MainHeader } from "@/components/ui/main/main-header";
+
 
 
 const geistSans = Geist({
@@ -37,54 +35,22 @@ function LayoutContent({
 }: {
   children: React.ReactNode;
 }) {
-  const { config } = useGridConfig();
-
-  const handleViewWalkthrough = () => {
-    localStorage.removeItem("hasVisited")
-    window.location.reload()
-  }
-
 
   return (
     <body
-      className="hidden md:flex min-h-full w-screen  flex-col bg-neutral-100"
-      style={getPatternCSS(config)}
+      className="relative flex min-h-dvh w-full flex-col overflow-x-hidden bg-neutral-100"
     >
 
 
-      <SidebarProvider>
+      <PatternBackground />
+      <MainHeader />
+      <SidebarProvider className="relative z-10">
         <MainSidebar />
         <Toaster />
 
         <div className="flex flex-col justify-center items-center h-full w-full p-4">
           <main className="flex-1 p-6">
-            <header className="absolute top-4 left-[50vw] font-bold font-sans">
-
-              dotgrid.io
-            </header>
-            <div className="absolute top-4 right-4 flex justify-center items-center p-2 gap-4 px-4 rounded-4xl bg-neutral-900">
-              <Button className="p-0 cursor-pointer" onClick={handleViewWalkthrough}>
-                <BookOpenText className="text-neutral-100" strokeWidth={1.5} size={16} />
-              </Button>
-
-              {/* <LayoutDashboard className="text-neutral-100" strokeWidth={1.5} size={16} /> */}
-              <Tooltip>
-                <TooltipTrigger render={
-                  <Avatar size="sm" className="relative ">
-                    <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                    <AvatarFallback>CN</AvatarFallback>
-                    <AvatarBadge className="bg-green-600 dark:bg-green-800 " />
-                    <span className="absolute -top-1 w-[130%] h-[130%] backdrop-blur-xs rounded-full opacity-0 z-100 hover:opacity-100 transition-opacity duration-300 "></span>
-                  </Avatar>
-                } />
-                <TooltipContent className="mt-3">
-                  <p className="">User Profile is coming soon</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            {/* <main className="flex-1 p-6">
-              {children}
-            </main> */}
+            {children}
           </main>
         </div>
       </SidebarProvider>
@@ -100,25 +66,6 @@ export default function RootLayout({
 }>) {
 
 
-
-  // return (
-  // <html
-  //   lang="en"
-  //   className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-  // >
-  //   <body className="min-h-full flex flex-col pt-[--navbar-height] bg-black">
-  //     <SelectorProvider>
-  //       <MainNavbar />
-  //       <PatternConfigProvider>
-  //         <SidebarProvider>
-  //           <MainSidebar />
-  //           {children}
-  //           <Toaster />
-  //         </SidebarProvider>
-  //       </PatternConfigProvider>
-  //     </SelectorProvider>
-  //   </body>
-  // </html>)
 
 
   return (

@@ -33,11 +33,7 @@ export function getPatternCSS(config: PatternConfig) {
 
     const {
         pattern,
-        scale,
-        spacing,
         primaryColour,
-        backgroundColour,
-        opacity
     } = config
 
 
@@ -105,4 +101,13 @@ export function getPatternCSS(config: PatternConfig) {
 
 
 
+}
+/** Plain CSS declarations ready to paste inside a selector. */
+export function getPatternCSSText(config: PatternConfig): string {
+    return Object.entries(getPatternCSS(config))
+        .map(([property, value]) => {
+            const cssProperty = property.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
+            return `${cssProperty}: ${String(value).replace(/\s+/g, " ").trim()};`
+        })
+        .join("\n")
 }
