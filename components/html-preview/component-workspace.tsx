@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import { Code, CornerLeftUp, Download, FileCode2, Monitor, Scan, Smartphone, Tablet, Upload, X } from "lucide-react"
+import { Code, CornerLeftUp, Download, FileCode2, Monitor, Scan, Smartphone, Tablet, Upload, X, RotateCcw } from "lucide-react"
 import { toast } from "@/components/ui/toast"
 import { useGridConfig } from "@/app/context/GridConfigContext"
-import { DEFAULT_PATTERN_CONFIG, type PatternConfig } from "@/app/types/grid-config"
+import { type PatternConfig, type LayerStack } from "@/app/types/grid-config"
+import { createStack } from "@/lib/pattern-layers"
 import { getLabelContrast } from "@/lib/color-contrast"
 import { buildPreviewDocument, type PreparedDocument } from "@/lib/html-preview/build-document"
 import { downloadText, exportBackgrounds } from "@/lib/html-preview/export"
@@ -88,10 +89,17 @@ export default function ComponentWorkspace({ open, onClose }: Props) {
         return () => cancelAnimationFrame(frame)
     }, [open, importOpen, exportOpen])
     const selected = targets.find(target => target.id === project?.selectedId)
-    const config = selected ? project?.backgrounds[selected.id] ?? targetDefaults(selected, canvasConfig) : DEFAULT_PATTERN_CONFIG
-    function changeConfig(partial: Partial<PatternConfig>) {
+    const selectedStack = selected ? project?.backgrounds[selected.id] : undefined
+    const config = targetDefaults(selected, canvasConfig)
+    function changeLayers(stack: LayerStack) {
         if (!selected) return
-        setProject(previous => previous ? { ...previous, backgrounds: { ...previous.backgrounds, [selected.id]: { ...(previous.backgrounds[selected.id] ?? config), ...partial } } } : previous)
+        setProject(previous => {
+            if (!previous) return previous
+            const backgrounds = { ...previous.backgrounds }
+            if (stack.layers.length) backgrounds[selected.id] = stack
+            else delete backgrounds[selected.id]
+            return { ...previous, backgrounds }
+        })
         setStatus(`Editing ${selected.label} · other backgrounds stay unchanged.`)
     }
     const onSelect = useCallback((target: PreviewTarget | null) => {
@@ -113,7 +121,7 @@ export default function ComponentWorkspace({ open, onClose }: Props) {
     const exportData = useMemo(() => exportOpen && project && prepared ? exportBackgrounds(project, prepared.cleanHtml) : null, [exportOpen, project, prepared])
     function importSource(source: ImportSource) {
         const same = project && project.html === source.html && project.css === source.css
-        install({ version: 1, id: same ? project.id : crypto.randomUUID(), name: source.name, html: source.html, css: source.css, allowRemoteAssets: source.allowRemoteAssets, backgrounds: same ? project.backgrounds : {}, selectedId: same ? project.selectedId : null })
+        install({ version: 2, id: same ? project.id : crypto.randomUUID(), name: source.name, html: source.html, css: source.css, allowRemoteAssets: source.allowRemoteAssets, backgrounds: same ? project.backgrounds : {}, selectedId: same ? project.selectedId : null })
     }
     function download() {
         if (!exportData || !project) return
@@ -137,9 +145,9 @@ export default function ComponentWorkspace({ open, onClose }: Props) {
         }
     }}>
         <div className="cw-app" inert={importOpen || exportOpen}>
-            <header className="cw-topbar"><strong>dotgrid.io</strong><h1 id="cw-title">Component preview</h1><button type="button" className="cw-icon-button" aria-label="Back to pattern canvas" disabled={closing} onClick={() => void close()}><X size={19} /></button></header>
+            <header className="cw-topbar"><strong>dotgrid.io</strong><h1 id="cw-title">Component preview</h1><div className="cw-top-actions"><button type="button" className="cw-icon-button" aria-label="Reset design" disabled={!project || !Object.keys(project.backgrounds).length} onClick={() => { setProject(previous => previous ? { ...previous, backgrounds: {} } : previous); setStatus("Design reset. All original backgrounds restored.") }}><RotateCcw size={17} /></button><button type="button" className="cw-icon-button" aria-label="Back to pattern canvas" disabled={closing} onClick={() => void close()}><X size={19} /></button></div></header>
             <div className="cw-layout">
-                <ComponentControls target={selected} config={config} applied={!!(selected && project?.backgrounds[selected.id])} onChange={changeConfig} onReset={() => changeConfig(DEFAULT_PATTERN_CONFIG)} onRestore={() => { if (!selected) return; setProject(previous => { if (!previous) return previous; const backgrounds = { ...previous.backgrounds }; delete backgrounds[selected.id]; return { ...previous, backgrounds } }); setStatus("Original background restored.") }} onExport={() => { setExportOpen(true); setCopied(false) }} canExport={!!project && Object.keys(project.backgrounds).length > 0} expanded={controlsOpen} onToggle={() => setControlsOpen(value => !value)} />
+                <ComponentControls target={selected} stack={selectedStack} initialConfig={config} onChange={changeLayers} onApply={() => changeLayers(createStack(config))} onRestore={() => { if (selected) changeLayers({ layers: [], expandedLayerId: null, nextLayerNumber: 1 }); setStatus("Original background restored.") }} onExport={() => { setExportOpen(true); setCopied(false) }} canExport={!!project && Object.keys(project.backgrounds).length > 0} expanded={controlsOpen} onToggle={() => setControlsOpen(value => !value)} />
                 <main className="cw-workspace-main">
                     <div className="cw-filebar"><span className="cw-filename"><FileCode2 size={17} /><span>{project?.name || "Your component"}</span></span><button type="button" className="cw-button" onClick={() => { setError(""); setImportOpen(true) }}><Upload size={15} />{project ? "Replace component" : "Upload component"}</button></div>
                     <div className="cw-preview-toolbar"><div className="cw-tools"><button type="button" className="cw-tool" disabled={!prepared} aria-pressed={selecting} onClick={() => setSelecting(value => !value)}><Scan size={15} />Select element</button><button type="button" className="cw-tool" disabled={!selected?.parentId} onClick={() => setProject(previous => previous && selected?.parentId ? { ...previous, selectedId: selected.parentId } : previous)}><CornerLeftUp size={15} />Parent</button></div><div className="cw-devices" aria-label="Preview viewport">{(["desktop", "tablet", "mobile"] as const).map(size => { const Icon = size === "desktop" ? Monitor : size === "tablet" ? Tablet : Smartphone; return <button type="button" key={size} className="cw-tool" aria-pressed={device === size} aria-label={`${size[0].toUpperCase() + size.slice(1)} preview`} onClick={() => setDevice(size)}><Icon size={15} /></button> })}</div></div>

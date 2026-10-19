@@ -7,8 +7,8 @@ The home canvas and its pattern configuration remain independent. The only home 
 1. Choose HTML and optional CSS files together, drop them into Import, or paste HTML/CSS. Combined source limit: 2 MB. A document may contain up to 5,000 elements / 1,000 background containers.
 2. Start from Landing hero, Pricing cards, or Newsletter if no file is available.
 3. Click Select element, then choose a section/card. The Target dropdown is the keyboard alternative and includes zero-size elements; Parent moves to the nearest selectable ancestor.
-4. Apply a pattern or adjust a control. Pattern type, scale, spacing, opacity, rotations, colors, and the existing presets apply only to that target. The controls use the design tokens in `docs/design-system/tokens.css`.
-5. Restore original background removes that target's override without touching the other targets.
+4. Apply a pattern or add a layer. Each target has an independent layer stack. Expand a layer to edit its type, geometry, colors, and transparency; drag its grip or use Up/Down on the grip to reorder. The top row renders on top. Footer presets apply to the expanded layer; Copy all layers copies that target’s complete background. The controls use `docs/design-system/tokens.css`.
+5. Restore original background removes that target's stack without touching the other targets. Removing its last layer does the same. Reset layer resets only its pattern controls; the workspace header’s Reset design restores every original background while keeping the imported source.
 6. Export CSS, copy it, or download the edited static HTML. The downloaded HTML contains generated `dotgrid-bg-*` classes and their matching rules. If copying only CSS, add those classes to the original markup. Download HTML to remove conflicting inline background declarations automatically.
 
 Desktop is fluid; tablet and mobile modes use real 768px / 375px iframe widths. Overflow is contained in the preview. On small screens, background controls open from the bottom of the workspace.
@@ -24,7 +24,7 @@ Desktop is fluid; tablet and mobile modes use real 768px / 375px iframe widths. 
 
 ## State and updates
 
-Imported source, target IDs, selection, asset preference and per-target configurations are stored in IndexedDB (`dotgrid-components`, `workspace`, `current`). Data is validated on restore. Saving is debounced; closing waits for the final IndexedDB commit. Page hide/visibility changes also write a temporary synchronous localStorage recovery snapshot, so a refresh cannot outrun the last edit. A successful newer IndexedDB save clears that snapshot. When storage fails, editing/export remain available and a message explains that saving failed. Nothing is sent to an application server.
+Imported source, target IDs, selection, asset preference and per-target layer stacks are stored in IndexedDB (`dotgrid-components`, `workspace`, `current`). Data is validated on restore. Version 2 projects migrate saved version 1 target configurations into single opaque layers without changing source or target IDs. Saving is debounced; closing waits for the final IndexedDB commit. Page hide/visibility changes also write a temporary synchronous localStorage recovery snapshot, so a refresh cannot outrun the last edit. A successful newer IndexedDB save clears that snapshot. When storage fails, editing/export remain available and a message explains that saving failed. Nothing is sent to an application server.
 
 The iframe document is prepared only on import/source replacement. Slider changes are batched to an animation frame and send configurations over the port; they do not replace `srcDoc`. The bridge interpolates numeric values/colors over 160ms, starts interrupted transitions from their displayed values, and honors reduced motion. Pattern type changes update the image immediately. Original inline styles are captured before the first override and restored exactly.
 

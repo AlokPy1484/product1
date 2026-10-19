@@ -1,5 +1,5 @@
 import createDOMPurify from "dompurify"
-import { getPatternCSS } from "@/app/utils.ts/pattern-utils"
+import { getPatternCSS, getLayerStackCSS } from "@/app/utils.ts/pattern-utils"
 import { previewBridge } from "./preview-bridge"
 import { MAX_SOURCE_BYTES, TARGET_ATTRIBUTE, type ComponentProject } from "./types"
 
@@ -55,7 +55,7 @@ export function buildPreviewDocument(project: ComponentProject): PreparedDocumen
     const script = doc.createElement("script")
     script.setAttribute("nonce", nonce)
     const settings = JSON.stringify({ session, projectId: project.id, parentOrigin: location.origin }).replace(/</g, "\\u003c")
-    script.textContent = `(${previewBridge.toString()})(${settings}, ${getPatternCSS.toString()});`
+    script.textContent = `(${previewBridge.toString()})(${settings}, ${getPatternCSS.toString()}, ${getLayerStackCSS.toString()});`
     doc.body.append(script)
     return { srcDoc: "<!doctype html>\n" + doc.documentElement.outerHTML, cleanHtml, session, warnings }
 }

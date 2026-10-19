@@ -1,13 +1,13 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import type { PatternConfig } from "@/app/types/grid-config"
+import type { LayerStack } from "@/app/types/grid-config"
 import type { PreparedDocument } from "@/lib/html-preview/build-document"
 import type { PreviewTarget } from "@/lib/html-preview/types"
 
 interface Props {
     document: PreparedDocument
-    backgrounds: Record<string, PatternConfig>
+    backgrounds: Record<string, LayerStack>
     selectedId: string | null
     selecting: boolean
     onTargets: (targets: PreviewTarget[]) => void

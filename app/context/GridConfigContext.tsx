@@ -1,98 +1,130 @@
-"use client";
+"use client"
 
-import { createContext, useContext, useEffect, useReducer, type ReactNode } from "react";
-import { DEFAULT_PATTERN_CONFIG, type PatternConfig } from "../types/grid-config";
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useReducer,
+    type ReactNode,
+} from "react"
+import {
+    DEFAULT_PATTERN_CONFIG,
+    type LayerStack,
+    type PatternConfig,
+} from "../types/grid-config"
+import {
+    createStack,
+    normalizeStack,
+    updateStack,
+    validPatternConfig,
+    type StackAction,
+} from "@/lib/pattern-layers"
 
-const STORAGE_KEY = "dotgrid:pattern-config:v1";
-
-type State = { config: PatternConfig; restored: boolean };
-type Action =
-    | { type: "UPDATE"; payload: Partial<PatternConfig> }
-    | { type: "RESTORE"; payload: PatternConfig }
-    | { type: "RESET" };
-
-interface PatternConfigContextValue {
-    config: PatternConfig;
-    updateConfig: (partial: Partial<PatternConfig>) => void;
-    resetConfig: () => void;
+const STORAGE_KEY = "dotgrid:pattern-layers:v2"
+interface ContextValue {
+    stack: LayerStack
+    restored: boolean
+    setStack: (stack: LayerStack) => void
+    dispatchStack: (action: StackAction) => void
+    resetDesign: () => void
+    config: PatternConfig
+    updateConfig: (partial: Partial<PatternConfig>) => void
+    resetConfig: () => void
 }
-
-const PatternConfigContext = createContext<PatternConfigContextValue | null>(null);
-
-function patternConfigReducer(state: State, action: Action): State {
-    switch (action.type) {
-        case "UPDATE":
-            return { ...state, config: { ...state.config, ...action.payload } };
-        case "RESTORE":
-            return { config: action.payload, restored: true };
-        case "RESET":
-            return { ...state, config: DEFAULT_PATTERN_CONFIG };
+const Context = createContext<ContextValue | null>(null)
+type State = { stack: LayerStack; restored: boolean }
+function reducer(
+    state: State,
+    action:
+        | { type: "restore" | "set"; stack: LayerStack }
+        | { type: "action"; action: StackAction },
+): State {
+    if (action.type === "action")
+        return { ...state, stack: updateStack(state.stack, action.action) }
+    return {
+        stack: action.stack,
+        restored: action.type === "restore" || state.restored,
     }
 }
-
-// Stored data can be stale or edited; restore only supported, valid values.
-function readSavedConfig(): PatternConfig {
+function savedStack() {
     try {
-        const saved: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
-        if (!saved || typeof saved !== "object" || Array.isArray(saved)) return DEFAULT_PATTERN_CONFIG;
-        const values = saved as Record<string, unknown>;
-        const config = { ...DEFAULT_PATTERN_CONFIG };
-        if (values.pattern === "dots" || values.pattern === "striped" || values.pattern === "grid") {
-            config.pattern = values.pattern;
-        }
-        for (const key of ["primaryColour", "backgroundColour"] as const) {
-            const value = values[key];
-            if (typeof value === "string" && /^#[\da-f]{6}$/i.test(value)) config[key] = value;
-        }
-        const ranges = {
-            scale: [0.1, 3], spacing: [10, 100], opacity: [0.1, 1],
-            primaryRotation: [0, 180], secondaryRotation: [0, 180],
-        } as const;
-        for (const key of Object.keys(ranges) as (keyof typeof ranges)[]) {
-            const value = values[key];
-            const [min, max] = ranges[key];
-            if (typeof value === "number" && Number.isFinite(value) && value >= min && value <= max) {
-                config[key] = value;
-            }
-        }
-        return config;
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null")
+        const stack = saved?.version === 2 && normalizeStack(saved.stack)
+        if (stack) return stack
     } catch {
-        return DEFAULT_PATTERN_CONFIG;
+        /* Try the original single pattern. */
     }
+    try {
+        const legacy = JSON.parse(
+            localStorage.getItem("dotgrid:pattern-config:v1") || "null",
+        )
+        if (validPatternConfig(legacy)) return createStack(legacy)
+    } catch {
+        /* Editing works without storage. */
+    }
+    return createStack()
 }
-
 export function PatternConfigProvider({ children }: { children: ReactNode }) {
-    const [state, dispatch] = useReducer(patternConfigReducer, {
-        config: DEFAULT_PATTERN_CONFIG,
+    const [state, dispatch] = useReducer(reducer, {
+        stack: createStack(),
         restored: false,
-    });
-
-    // Keep the server and first client render identical, then restore browser settings.
+    })
     useEffect(() => {
-        dispatch({ type: "RESTORE", payload: readSavedConfig() });
-    }, []);
-
+        dispatch({ type: "restore", stack: savedStack() })
+    }, [])
     useEffect(() => {
-        if (!state.restored) return;
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state.config));
-        } catch {
-            // Storage restrictions must not prevent editing or exporting patterns.
-        }
-    }, [state.config, state.restored]);
-
-    const updateConfig = (partial: Partial<PatternConfig>) => dispatch({ type: "UPDATE", payload: partial });
-    const resetConfig = () => dispatch({ type: "RESET" });
-
+        if (state.restored)
+            try {
+                localStorage.setItem(
+                    STORAGE_KEY,
+                    JSON.stringify({ version: 2, stack: state.stack }),
+                )
+            } catch {
+                /* Export stays available. */
+            }
+    }, [state])
+    const setStack = useCallback(
+        (stack: LayerStack) => dispatch({ type: "set", stack }),
+        [],
+    )
+    const dispatchStack = useCallback(
+        (action: StackAction) => dispatch({ type: "action", action }),
+        [],
+    )
+    const resetDesign = useCallback(
+        () => dispatch({ type: "set", stack: createStack() }),
+        [],
+    )
+    const active =
+        state.stack.layers.find((l) => l.id === state.stack.expandedLayerId) ??
+        state.stack.layers[0]
+    const config = active?.config ?? DEFAULT_PATTERN_CONFIG
+    const updateConfig = (partial: Partial<PatternConfig>) => {
+        if (active)
+            dispatchStack({ type: "edit", id: active.id, config: partial })
+    }
     return (
-        <PatternConfigContext.Provider value={{ config: state.config, updateConfig, resetConfig }}>
+        <Context.Provider
+            value={{
+                ...state,
+                setStack,
+                dispatchStack,
+                resetDesign,
+                config,
+                updateConfig,
+                resetConfig: resetDesign,
+            }}
+        >
             {children}
-        </PatternConfigContext.Provider>
-    );
+        </Context.Provider>
+    )
 }
-
 export function useGridConfig() {
-    const ctx = useContext(PatternConfigContext);
-    if (!ctx) throw new Error("useGridConfig must be used within PatternConfigProvider");
-    return ctx;
+    const context = useContext(Context)
+    if (!context)
+        throw new Error(
+            "useGridConfig must be used within PatternConfigProvider",
+        )
+    return context
 }

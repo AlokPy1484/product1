@@ -1,12 +1,12 @@
-import type { PatternConfig } from "@/app/types/grid-config"
+import type { LayerStack, PatternConfig } from "@/app/types/grid-config"
 
 /** Serialized into the isolated document. Keep every runtime dependency inside this function. */
-export function previewBridge(settings: { session: string; parentOrigin: string; projectId: string }, patternCSS: (config: PatternConfig) => Record<string, string>) {
+export function previewBridge(settings: { session: string; parentOrigin: string; projectId: string }, patternCSS: (config: PatternConfig) => Record<string, string>, stackCSS: (stack: LayerStack, patternCSS: (config: PatternConfig) => Record<string, string>) => Record<string, string>) {
     const attribute = "data-dotgrid-target"
     const nodes = Array.from(document.querySelectorAll<HTMLElement>(`[${attribute}]`))
     const targets = new Map(nodes.map(node => [node.getAttribute(attribute)!, node]))
     const originals = new Map<string, string | null>()
-    const displayed = new Map<string, PatternConfig>()
+    const displayed = new Map<string, LayerStack>()
     const animations = new Map<string, number>()
     let port: MessagePort | null = null
     let selected: string | null = null
@@ -59,13 +59,13 @@ export function previewBridge(settings: { session: string; parentOrigin: string;
         draw()
         send({ type: "selected", target: id ? metadata(targets.get(id)!) : null })
     }
-    function apply(node: HTMLElement, config: PatternConfig) {
-        const values = patternCSS(config)
+    function apply(node: HTMLElement, stack: LayerStack) {
+        const values = stackCSS(stack, patternCSS)
         for (const [key, value] of Object.entries(values)) node.style.setProperty(key.replace(/[A-Z]/g, l => `-${l.toLowerCase()}`), value, "important")
         node.style.setProperty("background-size", values.backgroundSize || "auto", "important")
         node.style.setProperty("background-position", "0 0", "important")
     }
-    function valid(value: unknown): value is PatternConfig {
+    function validConfig(value: unknown): value is PatternConfig {
         if (!value || typeof value !== "object") return false
         const c = value as PatternConfig
         return ["dots", "striped", "grid"].includes(c.pattern) && [c.primaryColour, c.backgroundColour].every(v => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v)) &&
@@ -73,6 +73,17 @@ export function previewBridge(settings: { session: string; parentOrigin: string;
                 const value = c[key as keyof PatternConfig]
                 return typeof value === "number" && Number.isFinite(value) && value >= range[0] && value <= range[1]
             })
+    }
+    function valid(value: unknown): value is LayerStack {
+        if (!value || typeof value !== "object") return false
+        const stack = value as LayerStack
+        if (!Array.isArray(stack.layers) || !stack.layers.length || stack.layers.length > 50 || !Number.isSafeInteger(stack.nextLayerNumber) || stack.nextLayerNumber < 1) return false
+        const ids = new Set<string>()
+        for (const layer of stack.layers) {
+            if (!layer || typeof layer.id !== "string" || !/^[\w-]{1,80}$/.test(layer.id) || ids.has(layer.id) || typeof layer.name !== "string" || layer.name.length > 64 || typeof layer.backgroundEnabled !== "boolean" || !validConfig(layer.config)) return false
+            ids.add(layer.id)
+        }
+        return stack.expandedLayerId === null || ids.has(stack.expandedLayerId)
     }
     function blend(a: string, b: string, t: number) {
         const x = parseInt(a.slice(1), 16), y = parseInt(b.slice(1), 16)
@@ -94,7 +105,9 @@ export function previewBridge(settings: { session: string; parentOrigin: string;
             const node = targets.get(id)
             if (!node || !valid(config)) continue
             const from = displayed.get(id)
-            if (from && JSON.stringify(from) === JSON.stringify(config)) continue
+            // Names and accordion state do not change the rendered pattern.
+            const visualKey = (stack: LayerStack) => JSON.stringify(stack.layers.map(({ id, config, backgroundEnabled }) => ({ id, config, backgroundEnabled })))
+            if (from && visualKey(from) === visualKey(config)) continue
             if (!originals.has(id)) {
                 originals.set(id, node.getAttribute("style"))
                 originalBackgrounds.set(id, getComputedStyle(node).backgroundColor)
@@ -107,10 +120,15 @@ export function previewBridge(settings: { session: string; parentOrigin: string;
             const step = (now: number) => {
                 const progress = Math.min(1, (now - start) / 160)
                 const t = 1 - (1 - progress) ** 3
-                const next = { ...config }
-                for (const key of ["scale", "spacing", "opacity", "primaryRotation", "secondaryRotation"] as const) next[key] = from[key] + (config[key] - from[key]) * t
-                next.primaryColour = blend(from.primaryColour, config.primaryColour, t)
-                next.backgroundColour = blend(from.backgroundColour, config.backgroundColour, t)
+                const byId = new Map(from.layers.map(layer => [layer.id, layer]))
+                const next: LayerStack = { ...config, layers: config.layers.map(layer => {
+                    const start = byId.get(layer.id)?.config ?? layer.config
+                    const nextConfig = { ...layer.config }
+                    for (const key of ["scale", "spacing", "opacity", "primaryRotation", "secondaryRotation"] as const) nextConfig[key] = start[key] + (layer.config[key] - start[key]) * t
+                    nextConfig.primaryColour = blend(start.primaryColour, layer.config.primaryColour, t)
+                    nextConfig.backgroundColour = blend(start.backgroundColour, layer.config.backgroundColour, t)
+                    return { ...layer, config: nextConfig }
+                }) }
                 displayed.set(id, next)
                 apply(node, next)
                 if (progress < 1) animations.set(id, requestAnimationFrame(step))

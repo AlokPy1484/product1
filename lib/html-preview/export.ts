@@ -1,4 +1,4 @@
-import { getPatternCSS } from "@/app/utils.ts/pattern-utils"
+import { getLayerStackCSS } from "@/app/utils.ts/pattern-utils"
 import { TARGET_ATTRIBUTE, type ComponentProject } from "./types"
 
 const properties = ["background-image", "background-color", "background-size", "background-repeat", "background-position"]
@@ -13,7 +13,7 @@ export function exportBackgrounds(project: ComponentProject, cleanHtml: string) 
         node.classList.add(className)
         // Removing only edited background properties lets the exported rule beat inline !important backgrounds.
         properties.forEach(property => node.style.removeProperty(property))
-        const values = { ...getPatternCSS(config), backgroundSize: getPatternCSS(config).backgroundSize || "auto", backgroundPosition: "0 0" }
+        const values = getLayerStackCSS(config)
         const css = Object.entries(values).map(([key, value]) => `  ${key.replace(/[A-Z]/g, l => `-${l.toLowerCase()}`)}: ${String(value).replace(/\s+/g, " ").trim()} !important;`).join("\n")
         rules.push(`.${className} {\n${css}\n}`)
     }

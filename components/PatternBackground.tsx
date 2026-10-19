@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGridConfig } from "@/app/context/GridConfigContext";
 import type { PatternConfig } from "@/app/types/grid-config";
 import { getLabelContrast } from "@/lib/color-contrast";
-import { getPatternCSS } from "@/app/utils.ts/pattern-utils";
+import { getLayerStackCSS } from "@/app/utils.ts/pattern-utils";
 
 const TRANSITION_SECONDS = 0.16;
 
@@ -41,59 +41,40 @@ function blendConfig(from: PatternConfig, to: PatternConfig, progress: number): 
 }
 
 export function PatternBackground() {
-    const { config } = useGridConfig();
+    const { stack } = useGridConfig();
+    const layers = stack.layers;
     const reduceMotion = useReducedMotion();
-    const displayedConfig = useRef(config);
-    const [frame, setFrame] = useState({ config, previousPattern: config.pattern, progress: 1 });
-
+    const displayed = useRef(layers);
+    const [frame, setFrame] = useState({ layers, previous: layers, progress: 1, crossfade: false });
     useEffect(() => {
-        const root = document.documentElement;
-        const previousColor = root.style.getPropertyValue("--pattern-label-color");
-        const previousOutline = root.style.getPropertyValue("--pattern-label-outline");
-        publishLabelContrast(displayedConfig.current.backgroundColour);
+        publishLabelContrast(displayed.current.find(layer => layer.backgroundEnabled)?.config.backgroundColour ?? "#ffffff");
         return () => {
-            if (previousColor) root.style.setProperty("--pattern-label-color", previousColor);
-            else root.style.removeProperty("--pattern-label-color");
-            if (previousOutline) root.style.setProperty("--pattern-label-outline", previousOutline);
-            else root.style.removeProperty("--pattern-label-outline");
+            document.documentElement.style.removeProperty("--pattern-label-color");
+            document.documentElement.style.removeProperty("--pattern-label-outline");
         };
     }, []);
-
     useEffect(() => {
-        const from = displayedConfig.current;
-        if (JSON.stringify(from) === JSON.stringify(config)) return;
-
-        // Interrupted slider changes start from the visible values, keeping
-        // rapid dragging smooth without queuing animations or extra layers.
+        const from = displayed.current;
+        const key = (items: typeof layers) => JSON.stringify(items.map(({ id, config, backgroundEnabled }) => ({ id, config, backgroundEnabled })));
+        if (key(from) === key(layers)) return;
+        const byId = new Map(from.map(layer => [layer.id, layer]));
+        const crossfade = from.length !== layers.length || layers.some((layer, index) => from[index]?.id !== layer.id || byId.get(layer.id)?.config.pattern !== layer.config.pattern || byId.get(layer.id)?.backgroundEnabled !== layer.backgroundEnabled);
         const animation = animate(0, 1, {
-            duration: reduceMotion ? 0 : TRANSITION_SECONDS,
-            ease: "easeOut",
-            onUpdate: (progress) => {
-                const next = progress === 1 ? config : blendConfig(from, config, progress);
-                displayedConfig.current = next;
-                publishLabelContrast(next.backgroundColour);
-                setFrame({ config: next, previousPattern: from.pattern, progress });
+            duration: reduceMotion ? 0 : TRANSITION_SECONDS, ease: "easeOut",
+            onUpdate: progress => {
+                const next = progress === 1 ? layers : layers.map(layer => ({ ...layer, config: blendConfig(byId.get(layer.id)?.config ?? layer.config, layer.config, progress) }));
+                displayed.current = next;
+                const background = (items: typeof layers) => items.find(layer => layer.backgroundEnabled)?.config.backgroundColour ?? "#ffffff";
+                publishLabelContrast(crossfade ? blendColor(background(from), background(next), progress) : background(next));
+                setFrame({ layers: next, previous: from, progress, crossfade });
             },
         });
         return () => animation.stop();
-    }, [config, reduceMotion]);
-
-    const changingPattern = frame.previousPattern !== frame.config.pattern && frame.progress < 1;
-
-    return (
-        <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0" data-pattern-background>
-            {/* Keep the outgoing pattern opaque below the incoming layer so
-                a pattern switch never flashes the page's base color. */}
-            {changingPattern && (
-                <div
-                    className="absolute inset-0"
-                    style={getPatternCSS({ ...frame.config, pattern: frame.previousPattern })}
-                />
-            )}
-            <div
-                className="absolute inset-0"
-                style={{ ...getPatternCSS(frame.config), opacity: changingPattern ? frame.progress : 1 }}
-            />
-        </div>
-    );
+    }, [layers, reduceMotion]);
+    const changing = frame.crossfade && frame.progress < 1;
+    const css = (items: typeof layers) => ({ ...getLayerStackCSS({ layers: items, expandedLayerId: null, nextLayerNumber: 1 }), backgroundColor: "#ffffff" });
+    return <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0" data-pattern-background>
+        {changing && <div className="absolute inset-0" style={css(frame.previous)} />}
+        <div className="absolute inset-0" data-pattern-composite style={{ ...css(frame.layers), opacity: changing ? frame.progress : 1 }} />
+    </div>;
 }

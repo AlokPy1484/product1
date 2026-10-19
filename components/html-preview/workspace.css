@@ -159,3 +159,16 @@
 /* Device modes retain their real viewport width, with scrolling contained in the preview. */
 .cw-device-tablet, .cw-device-mobile { justify-content: flex-start; }
 .cw-device-tablet .cw-frame, .cw-device-mobile .cw-frame { max-width: none; margin-inline: auto; }
+/* The same ordered layer editor is used by the canvas and selected HTML targets. */
+.cw-top-actions { display: flex; align-items: center; gap: var(--dg-space-2); }
+.cw-layer-content { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.cw-layer-content > .cw-target-info { flex-shrink: 0; margin: 0 16px 4px; }
+.cw-layer-content > .cw-apply { margin: 8px 16px 0; width: auto; flex-shrink: 0; }
+.cw-layer-content > .cw-empty-controls { padding: 24px 16px; }
+.cw-layer-content .cw-restore-stack { margin: 0 16px; padding-bottom: 0; flex-shrink: 0; }
+.component-workspace .lp-reset { font-size: 12px; }
+@media (max-width: 767px) {
+  .cw-controls:not(.cw-controls-expanded) .cw-layer-content { display: none; }
+  .cw-controls .cw-layer-content { min-height: 0; flex: 1; }
+  .component-workspace .lp-name { font-size: 16px; }
+}
