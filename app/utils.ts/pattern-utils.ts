@@ -111,3 +111,25 @@ export function getPatternCSSText(config: PatternConfig): string {
         })
         .join("\n")
 }
+
+/** Self-contained for serialization into the opaque HTML preview. Order is topmost first. */
+export function getLayerStackCSS(stack: import("../types/grid-config").LayerStack, patternCSS: typeof getPatternCSS = getPatternCSS) {
+    const images: string[] = [], sizes: string[] = []
+    for (const layer of stack.layers) {
+        const style = patternCSS(layer.config)
+        if (style.backgroundImage) {
+            images.push(style.backgroundImage.replace(/\s+/g, " ").trim())
+            // A grid contributes two CSS backgrounds, each with its own size entry.
+            if (layer.config.pattern === "grid") sizes.push("auto", "auto")
+            else sizes.push(style.backgroundSize || "auto")
+        }
+        if (layer.backgroundEnabled) {
+            images.push(`linear-gradient(${layer.config.backgroundColour}, ${layer.config.backgroundColour})`)
+            sizes.push("auto")
+        }
+    }
+    return { backgroundImage: images.join(", ") || "none", backgroundSize: sizes.join(", ") || "auto", backgroundRepeat: "repeat", backgroundPosition: "0 0", backgroundColor: "transparent" }
+}
+export function getLayerStackCSSText(stack: import("../types/grid-config").LayerStack) {
+    return Object.entries(getLayerStackCSS(stack)).map(([property, value]) => `${property.replace(/[A-Z]/g, l => `-${l.toLowerCase()}`)}: ${value};`).join("\n")
+}

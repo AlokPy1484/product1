@@ -32,3 +32,15 @@ export const DEFAULT_PATTERN_CONFIG: PatternConfig = {
     primaryColour: '#000000',
     backgroundColour: '#ffffff'
 }
+/** Ordered topmost first. Collapsing controls never hides a rendered layer. */
+export interface PatternLayer {
+    id: string
+    name: string
+    config: PatternConfig
+    backgroundEnabled: boolean
+}
+export interface LayerStack {
+    layers: PatternLayer[]
+    expandedLayerId: string | null
+    nextLayerNumber: number
+}
