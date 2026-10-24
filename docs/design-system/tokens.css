@@ -1,0 +1,223 @@
+/* dotgrid.io design tokens — audited 2026-10-17.
+ * Source-derived reference; intentionally NOT imported by app/globals.css.
+ * Namespace avoids changing existing shadcn/Tailwind variables.
+ * See README.md for light-foundation/editor differences and usage.
+ */
+:root {
+
+  /* palette */
+  --dg-neutral-50: oklch(98.5% 0 none);
+  --dg-neutral-100: oklch(97% 0 none);
+  --dg-neutral-200: oklch(92.2% 0 none);
+  --dg-neutral-300: oklch(87% 0 none);
+  --dg-neutral-400: oklch(70.8% 0 none);
+  --dg-neutral-500: oklch(55.6% 0 none);
+  --dg-neutral-600: oklch(43.9% 0 none);
+  --dg-neutral-700: oklch(37.1% 0 none);
+  --dg-neutral-800: oklch(26.9% 0 none);
+  --dg-neutral-900: oklch(20.5% 0 none);
+  --dg-neutral-950: oklch(14.5% 0 none);
+  --dg-black: #000000;
+  --dg-white: #ffffff;
+  --dg-green-600: oklch(62.7% 0.194 149.214);
+  --dg-green-800: oklch(44.8% 0.119 151.328);
+
+  /* semantic-color */
+  --dg-color-panel: var(--dg-neutral-900);
+  --dg-color-control: var(--dg-neutral-800);
+  --dg-color-toast: var(--dg-neutral-950);
+  --dg-color-page-base: var(--dg-neutral-100);
+  --dg-color-text-primary: var(--dg-neutral-100);
+  --dg-color-text-secondary: var(--dg-neutral-400);
+  --dg-color-text-soft: var(--dg-neutral-200);
+  --dg-color-border-control: var(--dg-neutral-700);
+  --dg-color-border-strong: var(--dg-neutral-800);
+  --dg-color-action-surface: var(--dg-neutral-100);
+  --dg-color-action-text: var(--dg-neutral-900);
+  --dg-color-action-hover: var(--dg-neutral-300);
+  --dg-color-action-border: var(--dg-neutral-300);
+  --dg-color-drawer-handle: var(--dg-neutral-500);
+  --dg-color-focus-editor: var(--dg-neutral-400);
+  --dg-color-overlay-drawer: rgb(0 0 0 / 5%);
+  --dg-color-overlay-sheet: rgb(0 0 0 / 10%);
+  --dg-color-status-online: var(--dg-green-600);
+  --dg-color-label-adaptive: var(--pattern-label-color, #000000);
+  --dg-color-label-outline: var(--pattern-label-outline, #ffffff);
+
+  /* foundation */
+  --dg-foundation-background: oklch(1 0 0);
+  --dg-foundation-foreground: oklch(0.145 0 0);
+  --dg-foundation-card: oklch(1 0 0);
+  --dg-foundation-card-foreground: oklch(0.145 0 0);
+  --dg-foundation-popover: oklch(1 0 0);
+  --dg-foundation-popover-foreground: oklch(0.145 0 0);
+  --dg-foundation-primary: oklch(0.205 0 0);
+  --dg-foundation-primary-foreground: oklch(0.985 0 0);
+  --dg-foundation-secondary: oklch(0.97 0 0);
+  --dg-foundation-secondary-foreground: oklch(0.205 0 0);
+  --dg-foundation-muted: oklch(0.97 0 0);
+  --dg-foundation-muted-foreground: oklch(0.556 0 0);
+  --dg-foundation-accent: oklch(0.97 0 0);
+  --dg-foundation-accent-foreground: oklch(0.205 0 0);
+  --dg-foundation-destructive: oklch(0.577 0.245 27.325);
+  --dg-foundation-border: oklch(0.922 0 0);
+  --dg-foundation-input: oklch(0.922 0 0);
+  --dg-foundation-ring: oklch(0.708 0 0);
+  --dg-foundation-sidebar: oklch(0.985 0 0);
+  --dg-foundation-sidebar-foreground: oklch(0.145 0 0);
+  --dg-foundation-sidebar-primary: oklch(0.205 0 0);
+  --dg-foundation-sidebar-primary-foreground: oklch(0.985 0 0);
+  --dg-foundation-sidebar-accent: oklch(0.97 0 0);
+  --dg-foundation-sidebar-accent-foreground: oklch(0.205 0 0);
+  --dg-foundation-sidebar-border: oklch(0.922 0 0);
+  --dg-foundation-sidebar-ring: oklch(0.708 0 0);
+
+  /* spacing */
+  --dg-space-0: 0px;
+  --dg-space-px: 1px;
+  --dg-space-0-5: 0.125rem;
+  --dg-space-1: 0.25rem;
+  --dg-space-1-5: 0.375rem;
+  --dg-space-2: 0.5rem;
+  --dg-space-2-5: 0.625rem;
+  --dg-space-3: 0.75rem;
+  --dg-space-4: 1rem;
+  --dg-space-5: 1.25rem;
+  --dg-space-6: 1.5rem;
+  --dg-space-8: 2rem;
+
+  /* radius */
+  --dg-radius-base: 0.625rem;
+  --dg-radius-sm: 0.375rem;
+  --dg-radius-md: 0.5rem;
+  --dg-radius-lg: 0.625rem;
+  --dg-radius-xl: 0.875rem;
+  --dg-radius-2xl: 1.125rem;
+  --dg-radius-3xl: 1.375rem;
+  --dg-radius-4xl: 1.625rem;
+  --dg-radius-full: 9999px;
+
+  /* component */
+  --dg-radius-panel: var(--dg-radius-4xl);
+  --dg-radius-control: var(--dg-radius-4xl);
+  --dg-radius-slider: var(--dg-radius-lg);
+  --dg-radius-tooltip: var(--dg-radius-md);
+  --dg-radius-popover: var(--dg-radius-lg);
+  --dg-radius-toast: var(--dg-radius-2xl);
+  --dg-radius-icon-button: var(--dg-radius-full);
+
+  /* typography */
+  --dg-font-family-sans: var(--font-geist-sans, "Geist"), system-ui, sans-serif;
+  --dg-font-family-mono: var(--font-geist-mono, "Geist Mono"), ui-monospace, monospace;
+  --dg-font-size-xs: .75rem;
+  --dg-font-size-sm: .875rem;
+  --dg-font-size-base: 1rem;
+  --dg-font-line-xs: 1rem;
+  --dg-font-line-sm: 1.25rem;
+  --dg-font-line-base: 1.5rem;
+  --dg-font-weight-regular: 400;
+  --dg-font-weight-medium: 500;
+  --dg-font-weight-bold: 700;
+
+  /* layout */
+  --dg-size-button-xs: 1.5rem;
+  --dg-size-button-sm: 1.75rem;
+  --dg-size-button: 2rem;
+  --dg-size-button-lg: 2.25rem;
+  --dg-size-header-hit: 2.5rem;
+  --dg-size-touch: 2.75rem;
+  --dg-size-icon: 1rem;
+  --dg-size-slider-track: 2.5rem;
+  --dg-size-slider-thumb-width: .375rem;
+  --dg-size-slider-thumb-height: 1.25rem;
+  --dg-size-slider-tick: .25rem;
+  --dg-size-swatch: 2rem;
+  --dg-size-drawer-grip-width: 2.5rem;
+  --dg-size-drawer-grip-height: .25rem;
+  --dg-size-drawer-handle: 3rem;
+  --dg-layout-sidebar-width: 24rem;
+  --dg-layout-sidebar-icon-width: 5rem;
+  --dg-layout-panel-inset: 1rem;
+  --dg-layout-drawer-gutter-narrow: 2px;
+  --dg-layout-drawer-gutter: .25rem;
+  --dg-layout-drawer-peek: 40px;
+  --dg-layout-drawer-height: min(80dvh, 46rem);
+  --dg-layout-drawer-max-height: calc(100dvh - 1rem);
+  --dg-layout-toast-max-width: 24rem;
+  --dg-breakpoint-drawer-gutter: 360px;
+  --dg-breakpoint-sm: 40rem;
+  --dg-breakpoint-md: 48rem;
+
+  /* interaction */
+  --dg-border-width: 1px;
+  --dg-focus-width-control: 3px;
+  --dg-focus-width-editor: 2px;
+  --dg-focus-width-slider: 4px;
+  --dg-opacity-disabled: .5;
+  --dg-opacity-slider-fill: .15;
+  --dg-opacity-slider-tick: .25;
+  --dg-label-outline-width: .4px;
+
+  /* elevation */
+  --dg-z-canvas: 0;
+  --dg-z-sidebar: 10;
+  --dg-z-header: 20;
+  --dg-z-drawer: 40;
+  --dg-z-overlay: 50;
+  --dg-shadow-panel: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --dg-shadow-popover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --dg-shadow-toast: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --dg-shadow-drawer: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --dg-blur-preview: 4px;
+
+  /* motion */
+  --dg-motion-duration-menu: 100ms;
+  --dg-motion-duration-control: 150ms;
+  --dg-motion-duration-pattern: 160ms;
+  --dg-motion-duration-sidebar: 200ms;
+  --dg-motion-duration-drawer: 240ms;
+  --dg-motion-duration-toast-content: 250ms;
+  --dg-motion-duration-hint: 300ms;
+  --dg-motion-duration-toast: 500ms;
+  --dg-motion-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --dg-motion-ease-pattern: cubic-bezier(0, 0, 0.58, 1);
+  --dg-motion-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --dg-motion-ease-toast: cubic-bezier(0.22, 1, 0.36, 1);
+  --dg-motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dg-motion-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* foundation-dark */
+  --dg-foundation-dark-background: oklch(0.145 0 0);
+  --dg-foundation-dark-foreground: oklch(0.985 0 0);
+  --dg-foundation-dark-card: oklch(0.205 0 0);
+  --dg-foundation-dark-card-foreground: oklch(0.985 0 0);
+  --dg-foundation-dark-popover: oklch(0.205 0 0);
+  --dg-foundation-dark-popover-foreground: oklch(0.985 0 0);
+  --dg-foundation-dark-primary: oklch(0.922 0 0);
+  --dg-foundation-dark-primary-foreground: oklch(0.205 0 0);
+  --dg-foundation-dark-secondary: oklch(0.269 0 0);
+  --dg-foundation-dark-secondary-foreground: oklch(0.985 0 0);
+  --dg-foundation-dark-muted: oklch(0.269 0 0);
+  --dg-foundation-dark-muted-foreground: oklch(0.708 0 0);
+  --dg-foundation-dark-accent: oklch(0.269 0 0);
+  --dg-foundation-dark-accent-foreground: oklch(0.985 0 0);
+  --dg-foundation-dark-destructive: oklch(0.704 0.191 22.216);
+  --dg-foundation-dark-border: oklch(1 0 0 / 10%);
+  --dg-foundation-dark-input: oklch(1 0 0 / 15%);
+  --dg-foundation-dark-ring: oklch(0.556 0 0);
+  --dg-foundation-dark-sidebar: oklch(0.205 0 0);
+  --dg-foundation-dark-sidebar-foreground: oklch(0.985 0 0);
+  --dg-foundation-dark-sidebar-primary: oklch(0.488 0.243 264.376);
+  --dg-foundation-dark-sidebar-primary-foreground: oklch(0.985 0 0);
+  --dg-foundation-dark-sidebar-accent: oklch(0.269 0 0);
+  --dg-foundation-dark-sidebar-accent-foreground: oklch(0.985 0 0);
+  --dg-foundation-dark-sidebar-border: oklch(1 0 0 / 10%);
+  --dg-foundation-dark-sidebar-ring: oklch(0.556 0 0);
+
+  /* foundation-chart */
+  --dg-foundation-chart-1: oklch(0.87 0 0);
+  --dg-foundation-chart-2: oklch(0.556 0 0);
+  --dg-foundation-chart-3: oklch(0.439 0 0);
+  --dg-foundation-chart-4: oklch(0.371 0 0);
+  --dg-foundation-chart-5: oklch(0.269 0 0);
+}

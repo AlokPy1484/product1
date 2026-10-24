@@ -1,12 +1,15 @@
 "use client"
 
-import { BookOpenText } from "lucide-react"
+import { ComponentUpload } from "@/components/html-preview/component-upload"
+import { useGridConfig } from "@/app/context/GridConfigContext"
+import { BookOpenText, RotateCcw } from "lucide-react"
 import { Button } from "../button"
 import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "../avatar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../tooltip"
 import { REQUEST_MOBILE_WALKTHROUGH_EVENT, START_WALKTHROUGH_EVENT } from "@/lib/walkthrough"
 
 export function MainHeader() {
+    const { resetDesign } = useGridConfig()
     const openWalkthrough = () => {
         const event = window.matchMedia("(max-width: 767px)").matches
             ? REQUEST_MOBILE_WALKTHROUGH_EVENT
@@ -18,7 +21,7 @@ export function MainHeader() {
         <header className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+0.75rem)] z-20 h-12 md:top-4" data-main-header>
             <span
                 data-brand-label
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-sm font-bold font-sans md:left-[max(50%,26rem)] md:text-base"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-sm font-bold font-sans max-[496px]:left-[calc(100%-15.5rem)] md:left-[max(50%,26rem)] md:text-base"
                 style={{
                     color: "var(--pattern-label-color, #000000)",
                     WebkitTextStroke: "0.4px var(--pattern-label-outline, #ffffff)",
@@ -35,6 +38,11 @@ export function MainHeader() {
                 >
                     <BookOpenText className="text-neutral-100" strokeWidth={1.5} size={16} />
                 </Button>
+                <Tooltip>
+                    <TooltipTrigger render={<button type="button" aria-label="Reset design" onClick={resetDesign} className="flex size-10 items-center justify-center rounded-full text-neutral-100 outline-none hover:bg-neutral-800 focus-visible:ring-2 focus-visible:ring-neutral-400 md:size-8"><RotateCcw size={16} strokeWidth={1.5} /></button>} />
+                    <TooltipContent>Reset design</TooltipContent>
+                </Tooltip>
+                <ComponentUpload />
                 <Tooltip>
                     <TooltipTrigger render={
                         <button type="button" aria-label="User profile" className="flex size-10 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 md:size-6">
